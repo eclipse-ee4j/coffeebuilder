@@ -1,57 +1,57 @@
 {
   "hibernate": {
     "groupId": "org.hibernate.orm",
-    "artificatId": "hibernate-core",
+    "artifactId": "hibernate-core",
     "version": "6.6.9.Final"
   },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
-    "artificatId": "maven-compiler-plugin",
+    "artifactId": "maven-compiler-plugin",
     "version": "3.14.0"
   },
   "jakarta-faces-10.0.0": {
     "groupId": "jakarta.faces",
-    "artificatId": "jakarta.faces-api",
+    "artifactId": "jakarta.faces-api",
     "version": "4.0.1"
   },
   "jakarta-faces-11.0.0": {
     "groupId": "jakarta.faces",
-    "artificatId": "jakarta.faces-api",
+    "artifactId": "jakarta.faces-api",
     "version": "4.1.2"
   },
   "jakarta-persistence-10.0.0": {
     "groupId": "jakarta.persistence",
-    "artificatId": "jakarta.persistence-api",
+    "artifactId": "jakarta.persistence-api",
     "version": "3.1.0"
   },
   "jakarta-persistence-11.0.0": {
     "groupId": "jakarta.persistence",
-    "artificatId": "jakarta.persistence-api",
+    "artifactId": "jakarta.persistence-api",
     "version": "3.2.0"
   },
   "jakarta-cdi-10.0.0": {
     "groupId": "jakarta.persistence",
-    "artificatId": "jakarta.enterprise.cdi-api",
+    "artifactId": "jakarta.enterprise.cdi-api",
     "version": "4.0.1"
   },
   "jakarta-cdi-11.0.0": {
     "groupId": "jakarta.persistence",
-    "artificatId": "jakarta.enterprise.cdi-api",
+    "artifactId": "jakarta.enterprise.cdi-api",
     "version": "4.1.0"
   },
   "jakarta-data-11.0.0": {
     "groupId": "jakarta.data",
-    "artificatId": "jakarta.data-api",
+    "artifactId": "jakarta.data-api",
     "version": "1.0.1"
   },
   "jakarta-mvc-10.0.0": {
     "groupId": "jakarta.mvc",
-    "artificatId": "jakarta.mvc-api",
+    "artifactId": "jakarta.mvc-api",
     "version": "2.1.0"
   },
   "jakarta-mvc-11.0.0": {
     "groupId": "jakarta.mvc",
-    "artificatId": "jakarta.mvc-api",
+    "artifactId": "jakarta.mvc-api",
     "version": "3.0.0"
   }
 }
