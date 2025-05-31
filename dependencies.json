@@ -58,5 +58,20 @@
     "groupId": "com.fasterxml.jackson.core",
     "artifactId": "jackson-core",
     "version": "2.19.0"
+  },
+  "microprofile-openapi-api": {
+    "groupId": "org.eclipse.microprofile.openapi",
+    "artifactId": "microprofile-openapi-api",
+    "version": "4.0.2"
+  },
+  "jakarta.validation-api-11.0.0": {
+    "groupId": "jakarta.validation",
+    "artifactId": "jakarta.validation-api",
+    "version": "3.1.1"
+  },
+  "jakarta.validation-api-10.0.0": {
+    "groupId": "jakarta.validation",
+    "artifactId": "jakarta.validation-api",
+    "version": "3.0.2"
   }
 }
