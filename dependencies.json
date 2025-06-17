@@ -2,7 +2,7 @@
   "hibernate": {
     "groupId": "org.hibernate.orm",
     "artifactId": "hibernate-core",
-    "version": "6.6.9.Final"
+    "version": "6.6.18.Final"
   },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
@@ -62,7 +62,7 @@
   "microprofile-openapi-api": {
     "groupId": "org.eclipse.microprofile.openapi",
     "artifactId": "microprofile-openapi-api",
-    "version": "4.0.2"
+    "version": "4.1"
   },
   "jakarta.validation-api-11.0.0": {
     "groupId": "jakarta.validation",
