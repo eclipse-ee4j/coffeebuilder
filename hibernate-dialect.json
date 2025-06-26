@@ -1,16 +1,42 @@
 {
-  "jdbc:h2": "org.hibernate.dialect.H2Dialect",
-  "jdbc:mysql": "org.hibernate.dialect.MySQLDialect",
-  "jdbc:postgresql": "org.hibernate.dialect.PostgreSQLDialect",
-  "jdbc:oracle": "org.hibernate.dialect.OracleDialect",
-  "jdbc:sqlserver": "org.hibernate.dialect.SQLServerDialect",
-  "jdbc:db2": "org.hibernate.dialect.DB2Dialect",
-  "jdbc:derby": "org.hibernate.dialect.DerbyDialect",
-  "jdbc:firebird": "org.hibernate.dialect.FirebirdDialect",
-  "jdbc:informix-sqli": "org.hibernate.dialect.InformixDialect",
-  "jdbc:ingres": "org.hibernate.dialect.IngresDialect",
-  "jdbc:mariadb": "org.hibernate.dialect.MariaDBDialect",
-  "jdbc:sap": "org.hibernate.dialect.SybaseDialect",
-  "jdbc:sqlite": "org.hibernate.dialect.SQLiteDialect",
-  "jdbc:sybase": "org.hibernate.dialect.SybaseDialect"
+  "h2": {
+    "dialect": "org.hibernate.dialect.H2Dialect",
+    "coordinates": "com.h2database:h2",
+    "dataSourceClass": "org.h2.jdbcx.JdbcDataSource"
+  },
+  "hsqldb": {
+    "dialect": "org.hibernate.dialect.HSQLDialect",
+    "coordinates": "org.hsqldb:hsqldb",
+    "dataSourceClass": "org.hsqldb.jdbc.JDBCDataSource"
+  },
+  "mysql": {
+    "dialect": "org.hibernate.dialect.MySQLDialect",
+    "coordinates": "com.mysql:mysql-connector-j",
+    "dataSourceClass": "com.mysql.cj.jdbc.MysqlDataSource"
+  },
+  "postgresql": {
+    "dialect": "org.hibernate.dialect.PostgreSQLDialect",
+    "coordinates": "org.postgresql:postgresql",
+    "dataSourceClass": "org.postgresql.ds.PGPoolingDataSource"
+  },
+  "oracle": {
+    "dialect": "org.hibernate.dialect.OracleDialect",
+    "coordinates": "com.oracle.database.jdbc:ojdbc11",
+    "dataSourceClass": "oracle.jdbc.pool.OracleDataSource"
+  },
+  "sqlserver": {
+    "dialect": "org.hibernate.dialect.SQLServerDialect",
+    "coordinates": "com.microsoft.sqlserver:mssql-jdbc",
+    "dataSourceClass": "com.microsoft.sqlserver.jdbc.SQLServerDataSource"
+  },
+  "derby": {
+    "dialect": "org.hibernate.dialect.DerbyDialect",
+    "coordinates": "org.apache.derby:derbyclient",
+    "dataSourceClass": "org.apache.derby.jdbc.ClientDataSource"
+  },
+  "mariadb": {
+    "dialect": "org.hibernate.dialect.MariaDBDialect",
+    "coordinates": "org.mariadb.jdbc:mariadb-java-client",
+    "dataSourceClass": "org.mariadb.jdbc.MariaDbDataSource"
+  }
 }
