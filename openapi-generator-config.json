@@ -14,7 +14,7 @@
       "interfaceOnly": "true",
       "useSwaggerAnnotations": "false",
       "dateLibrary": "java8",
-      "sourceFolder": "",
+      "sourceFolder": "/",
       "generatePom": "false",
       "useMicroProfileOpenAPIAnnotations": "true"
     }
