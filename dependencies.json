@@ -2,7 +2,7 @@
   "hibernate": {
     "groupId": "org.hibernate.orm",
     "artifactId": "hibernate-core",
-    "version": "6.6.18.Final"
+    "version": "6.6.20.Final"
   },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
@@ -57,7 +57,7 @@
   "jackson-core": {
     "groupId": "com.fasterxml.jackson.core",
     "artifactId": "jackson-core",
-    "version": "2.19.0"
+    "version": "2.19.1"
   },
   "microprofile-openapi-api": {
     "groupId": "org.eclipse.microprofile.openapi",
@@ -73,5 +73,10 @@
     "groupId": "jakarta.validation",
     "artifactId": "jakarta.validation-api",
     "version": "3.0.2"
+  },
+  "openapi-generator-maven-plugin":{
+    "groupId": "org.openapitools",
+    "artifactId": "openapi-generator-maven-plugin",
+    "version": "7.14.0"
   }
 }
