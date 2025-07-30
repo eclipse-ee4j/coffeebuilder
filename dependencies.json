@@ -2,7 +2,7 @@
   "hibernate": {
     "groupId": "org.hibernate.orm",
     "artifactId": "hibernate-core",
-    "version": "6.6.20.Final"
+    "version": "6.6.23.Final"
   },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
