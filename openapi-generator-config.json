@@ -12,7 +12,7 @@
       "generateBuilders": "true",
       "interfaceOnly": "true",
       "useSwaggerAnnotations": "false",
-      "dateLibrary": "java8",
+      "dateLibrary": "java8-localdatetime",
       "sourceFolder": "/",
       "generatePom": "false",
       "useMicroProfileOpenAPIAnnotations": "true"
