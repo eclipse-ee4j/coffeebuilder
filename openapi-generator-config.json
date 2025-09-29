@@ -1,0 +1,20 @@
+  {
+    "generatorName": "jaxrs-spec",
+    "configOptions": {
+      "outputDir": "${project.build.directory}/generated-sources/openapi",
+      "modelTests": "false",
+      "apiTests": "false",
+      "apiDocs": "false",
+      "modelDocs": "false",
+      "verbose": "true",
+      "returnResponse": "true",
+      "useJakartaEe": "true",
+      "generateBuilders": "true",
+      "interfaceOnly": "true",
+      "useSwaggerAnnotations": "false",
+      "dateLibrary": "java8-localdatetime",
+      "sourceFolder": "/",
+      "generatePom": "false",
+      "useMicroProfileOpenAPIAnnotations": "true"
+    }
+  }

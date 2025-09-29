@@ -1,0 +1,14 @@
+{
+  "10.0.0": {
+    "jakarta.faces-api": "4.0.1",
+    "jakarta.persistence-api": "3.1.0",
+    "jakarta.enterprise.cdi-api": "4.0.1"
+  },
+  "11.0.0": {
+    "jakarta.faces-api": "4.1.2",
+    "jakarta.persistence-api": "3.2.0",
+    "jakarta.enterprise.cdi-api": "4.1.0",
+    "jakarta.data-api": "1.0.1",
+    "jakarta.mvc-api": "3.0.0"
+  }
+}

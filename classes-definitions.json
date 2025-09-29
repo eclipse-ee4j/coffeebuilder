@@ -1,0 +1,11 @@
+{
+  "LocalDate":{
+    "fullName":"java.time.LocalDate"
+  },
+  "UUID":{
+    "fullName":"java.util.UUID"
+  },
+  "LocalDateTime":{
+    "fullName":"java.time.LocalDateTime"
+  }
+}

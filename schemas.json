@@ -1,0 +1,22 @@
+{
+  "11.0.0": {
+    "web-app": {
+      "url": "https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd",
+      "version": "6.1"
+    },
+    "persistence":{
+      "url": "https://jakarta.ee/xml/ns/persistence/persistence_3_2.xsd",
+      "version": "3.2"
+    }
+  },
+  "10.0.0": {
+    "web-app": {
+      "url": "https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd",
+      "version": "6.0"
+    },
+    "persistence": {
+      "url": "https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd",
+      "version": "3.0"
+    }
+  }
+}
