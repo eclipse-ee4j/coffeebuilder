@@ -54,6 +54,15 @@
     "artifactId": "jakarta.mvc-api",
     "version": "3.0.0"
   },
+  "jakarta-transaction-10.0.0": {
+    "groupId": "jakarta.transaction",
+    "artifactId": "jakarta.transaction-api",
+    "version": "2.0.1"
+  },  "jakarta-transaction-11.0.0": {
+    "groupId": "jakarta.transaction",
+    "artifactId": "jakarta.transaction-api",
+    "version": "2.0.1"
+  },
   "jackson-core": {
     "groupId": "com.fasterxml.jackson.core",
     "artifactId": "jackson-core",
