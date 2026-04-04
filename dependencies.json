@@ -86,7 +86,7 @@
   "openapi-generator-maven-plugin":{
     "groupId": "org.openapitools",
     "artifactId": "openapi-generator-maven-plugin",
-    "version": "7.14.0"
+    "version": "7.21.0"
   },
   "payara-micro-maven-plugin":{
     "groupId":"fish.payara.maven.plugins",
