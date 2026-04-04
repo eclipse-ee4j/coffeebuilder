@@ -91,6 +91,6 @@
   "payara-micro-maven-plugin":{
     "groupId":"fish.payara.maven.plugins",
     "artifactId":"payara-micro-maven-plugin",
-    "version":"2.5.0"
+    "version":"2.5.2"
   }
 }
