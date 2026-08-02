@@ -4,14 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.apuntesdejava</groupId>
+    <groupId>io.github.coffee-builder</groupId>
     <artifactId>jakarta-ee-essentials</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <version>0.0.8-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
-    <description>Essential Archetype for Jakarta EE Project</description>
-    <url>https://jakarta-coffee-builder.github.io/pages/</url>
+    <description>
+        Maven archetype for generating clean Jakarta EE projects with configurable platform version, profile and module type.
+    </description>
+    <url>https://coffee-builder.github.io/</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -20,10 +22,15 @@
     </licenses>
     <developers>
         <developer>
+            <id>diegosilva</id>
             <name>Diego Silva Límaco</name>
             <email>diego.silva@apuntesdejava.com</email>
-            <organization>Apuntes de Java</organization>
-            <organizationUrl>https://apuntesdejava.com</organizationUrl>
+            <organization>Coffee Builder</organization>
+            <organizationUrl>https://coffee-builder.github.io/</organizationUrl>
+            <roles>
+                <role>Founder</role>
+                <role>Developer</role>
+            </roles>
         </developer>
     </developers>
     <properties>
@@ -33,9 +40,16 @@
         <java.version.release>21</java.version.release>
     </properties>
     <scm>
-        <connection>scm:git:git://github.com/jakarta-coffee-builder/jakarta-ee-essentials.git</connection>
-        <developerConnection>scm:git:ssh://github.com:jakarta-coffee-builder/jakarta-ee-essentials.git</developerConnection>
-        <url>https://github.com/jakarta-coffee-builder/jakarta-ee-essentials/tree/master</url>
+        <connection>
+            scm:git:https://github.com/coffee-builder/jakarta-ee-essentials.git
+        </connection>
+        <developerConnection>
+            scm:git:ssh://git@github.com/coffee-builder/jakarta-ee-essentials.git
+        </developerConnection>
+        <url>
+            https://github.com/coffee-builder/jakarta-ee-essentials
+        </url>
+        <tag>HEAD</tag>
     </scm>
     <distributionManagement>
         <snapshotRepository>

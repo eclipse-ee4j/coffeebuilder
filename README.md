@@ -11,11 +11,13 @@ To generate a new project using this archetype, run the following command in you
 
 ```shell
 mvn archetype:generate \
-    -DarchetypeGroupId=com.apuntesdejava \
+    -DarchetypeGroupId=io.github.coffee-builder \
     -DarchetypeArtifactId=jakarta-ee-essentials \
-    -DarchetypeVersion=0.0.7 \
+    -DarchetypeVersion=0.0.8 \
     -DjakartaProfile=core \
+    -DjakartaVersion=11.0.0 \
     -DjakartaModule=web \
+    -DapiBasePath=/api \
     -DgroupId=com.example \
     -DartifactId=my-jakarta-app \
     -Dversion=1.0.0-SNAPSHOT
@@ -25,11 +27,13 @@ mvn archetype:generate \
 
 ```powershell
 mvn archetype:generate `
-    -DarchetypeGroupId="com.apuntesdejava" `
+    -DarchetypeGroupId="io.github.coffee-builder" `
     -DarchetypeArtifactId="jakarta-ee-essentials" `
-    -DarchetypeVersion="0.0.7" `
+    -DarchetypeVersion="0.0.8" `
     -DjakartaProfile="core" `
+    -DjakartaVersion="11.0.0" `
     -DjakartaModule="web" `
+    -DapiBasePath="/api" `
     -DgroupId="com.example" `
     -DartifactId="my-jakarta-app" `
     -Dversion="1.0.0-SNAPSHOT"
