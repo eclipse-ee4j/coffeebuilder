@@ -1,68 +1,79 @@
 # .github/workflows/maven-ci-cd.yml
-name: Java CI/CD with Maven
+name: Coffee Builder Maven Plugin CI/CD
 
 on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
   push:
     branches:
       - main
       - develop
+
   workflow_dispatch:
+
+env:
+  JAVA_VERSION: '21'
+  MAVEN_ARGS: --batch-mode --no-transfer-progress --file pom.xml
 
 jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          cache: maven
 
       - name: Build with Maven
-        run: mvn -B verify --file pom.xml
+        run: mvn $MAVEN_ARGS verify
 
   deploy-snapshot:
     name: Deploy SNAPSHOT to Sonatype
     needs: build
-    if: github.ref == 'refs/heads/develop'
+
+    # Solo publica snapshots cuando hay un push real a develop.
+    # Un pull request hacia develop ejecutará únicamente el job build.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          cache: maven
           server-id: central
           server-username: OSSRH_USERNAME
           server-password: OSSRH_TOKEN
-          cache: maven
 
       - name: Validate SNAPSHOT version
         run: |
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          echo "Current version: ${CURRENT_VERSION}"
-          if [[ "${CURRENT_VERSION}" != *-SNAPSHOT ]]; then
-            echo "develop must be deployed with a -SNAPSHOT version."
+
+          echo "Current version: $CURRENT_VERSION"
+
+          if [[ "$CURRENT_VERSION" != *-SNAPSHOT ]]; then
+            echo "::error::develop must use a -SNAPSHOT version before deploying snapshots."
             exit 1
           fi
 
       - name: Deploy SNAPSHOT to Sonatype Central
-        run: mvn -B deploy --file pom.xml
+        run: mvn $MAVEN_ARGS deploy
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
@@ -70,55 +81,73 @@ jobs:
   release:
     name: Release to Sonatype Central
     needs: build
-    if: github.ref == 'refs/heads/main'
+
+    # Solo crea releases cuando hay un push real a main.
+    # Un pull request hacia main ejecutará únicamente el job build.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     runs-on: ubuntu-latest
+
     permissions:
-      contents: write # Permiso para crear releases
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Necesario para el historial completo para generar las notas de la release
+          fetch-depth: 0
 
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
+          cache: maven
           server-id: central
           server-username: OSSRH_USERNAME
           server-password: OSSRH_TOKEN
-          cache: maven
 
       - name: Set release version
         id: set_version
         run: |
-          # Extrae la versión del POM, ej: "1.0.0-SNAPSHOT"
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-          # Quita "-SNAPSHOT" para obtener la versión de release, ej: "1.0.0"
-          RELEASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
-          echo "Current version: $CURRENT_VERSION"
-          echo "Release version: $RELEASE_VERSION"
-          echo "RELEASE_VERSION=${RELEASE_VERSION}" >> $GITHUB_ENV
-          # Actualiza el pom.xml en el runner a la versión de release
-          mvn versions:set -DnewVersion=$RELEASE_VERSION -DgenerateBackupPoms=false
 
-      - name: Deploy release to Maven Central
+          echo "Current version: $CURRENT_VERSION"
+
+          if [[ "$CURRENT_VERSION" != *-SNAPSHOT ]]; then
+            echo "::error::main must receive a -SNAPSHOT version before creating a release."
+            exit 1
+          fi
+
+          RELEASE_VERSION=${CURRENT_VERSION%-SNAPSHOT}
+
+          echo "Release version: $RELEASE_VERSION"
+          echo "RELEASE_VERSION=$RELEASE_VERSION" >> "$GITHUB_ENV"
+
+          mvn $MAVEN_ARGS versions:set \
+            -DnewVersion="$RELEASE_VERSION" \
+            -DgenerateBackupPoms=false
+
+      - name: Deploy Release to Maven Central
         env:
-          MAVEN_GPG_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE || secrets.GPG_PASSPHARSE }}
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+
+          MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY || secrets.GPG_PRIVATE_KEY }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE || secrets.GPG_PASSPHRASE || secrets.GPG_PASSPHARSE }}
+
         run: |
           if [ -z "$MAVEN_GPG_KEY" ]; then
-            echo "Missing GitHub secret: GPG_PRIVATE_KEY"
+            echo "::error::Missing GitHub secret: MAVEN_GPG_KEY or GPG_PRIVATE_KEY"
             exit 1
           fi
+
           if [ -z "$MAVEN_GPG_PASSPHRASE" ]; then
-            echo "Missing GitHub secret: GPG_PASSPHRASE"
+            echo "::error::Missing GitHub secret: MAVEN_GPG_PASSPHRASE, GPG_PASSPHRASE, or GPG_PASSPHARSE"
             exit 1
           fi
-          mvn -B clean deploy -P release --file pom.xml
+
+          mvn $MAVEN_ARGS clean deploy -P release
 
       - name: Create GitHub Release and Tag
         uses: softprops/action-gh-release@v2

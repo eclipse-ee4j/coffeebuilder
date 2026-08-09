@@ -29,3 +29,4 @@ target
 .agent
 *-REPORT.MD
 **/*.log
+.vscode
