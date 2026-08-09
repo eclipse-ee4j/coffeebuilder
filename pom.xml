@@ -3,14 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.apuntesdejava</groupId>
-    <artifactId>jakarta-coffee-builder-plugin</artifactId>
-    <version>0.0.7-SNAPSHOT</version>
+    <groupId>io.github.coffee-builder</groupId>
+    <artifactId>coffee-builder-maven-plugin</artifactId>
+    <version>0.0.8-SNAPSHOT</version>
     <packaging>maven-plugin</packaging>
 
-    <name>${project.groupId}:${project.artifactId}</name>
-    <description>Maven plugin for adding functionality to a Jakarta EE project</description>
-    <url>https://jakarta-coffee-builder.github.io/pages/</url>
+    <name>Coffee Builder Maven Plugin</name>
+    <description>Maven plugin for incrementally adding Jakarta EE capabilities to an existing project.</description>
+    <url>https://coffee-builder.github.io/</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -24,8 +24,8 @@
         <developer>
             <name>Diego Silva Límaco</name>
             <email>diego.silva@apuntesdejava.com</email>
-            <organization>Apuntes de Java</organization>
-            <organizationUrl>https://apuntesdejava.com</organizationUrl>
+            <organization>Coffee Builder</organization>
+            <organizationUrl>https://coffee-builder.github.io/</organizationUrl>
         </developer>
     </developers>
     <properties>
@@ -38,10 +38,9 @@
         <junit-jupiter.version>6.1.1</junit-jupiter.version>
     </properties>
     <scm>
-        <connection>scm:git:git://github.com/jakarta-coffee-builder/jakarta-coffee-builder-plugin.git</connection>
-        <developerConnection>scm:git:ssh://github.com:jakarta-coffee-builder/jakarta-coffee-builder-plugin.git
-        </developerConnection>
-        <url>https://github.com/jakarta-coffee-builder/jakarta-coffee-builder-plugin/tree/master</url>
+        <connection>scm:git:https://github.com/coffee-builder/coffee-builder-maven-plugin.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/coffee-builder/coffee-builder-maven-plugin.git</developerConnection>
+        <url>https://github.com/coffee-builder/coffee-builder-maven-plugin</url>
     </scm>
     <distributionManagement>
         <snapshotRepository>
@@ -218,7 +217,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
                 <configuration>
-                    <goalPrefix>jakarta-coffee-builder</goalPrefix>
+                    <goalPrefix>coffee-builder</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>
@@ -233,6 +232,9 @@
                         <goals>
                             <goal>helpmojo</goal>
                         </goals>
+                        <configuration>
+                            <helpPackageName>io.github.coffeebuilder</helpPackageName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -328,7 +330,7 @@
                                 </goals>
                                 <configuration>
                                     <excludePackageNames>
-                                        com.apuntesdejava.jakarta_coffee_builder_plugin
+                                        io.github.coffeebuilder
                                     </excludePackageNames>
                                 </configuration>
                             </execution>
