@@ -1,76 +1,98 @@
 # Coffee Builder Maven Plugin
 
-Este plugin de Maven agrega capacidades Jakarta EE de forma incremental a un proyecto existente. Coffee Builder genera la base y el desarrollador construye la aplicación.
+[English](README.md) | [Español](README.es.md)
 
-## 🚀 Uso desde la Línea de Comandos
+The Coffee Builder Maven Plugin incrementally adds Jakarta EE capabilities to an existing Maven project.
 
-Todos los "goals" del plugin pueden ejecutarse directamente sin necesidad de estar configurados en el `pom.xml`, utilizando la siguiente sintaxis:
+**Coffee Builder generates the foundation. The developer builds the application.**
+
+## Command-Line Usage
+
+Plugin goals can be executed directly without adding the plugin to the project's `pom.xml`:
 
 ```bash
-mvn io.github.coffee-builder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<opcion>=<valor>
+mvn io.github.coffee-builder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<option>=<value>
 ```
 
 ---
 
-## 🗄️ Persistencia y Datos
+## Persistence and Data
 
 ### `add-persistence`
-Configura la unidad de persistencia (JPA).
-- **`-Dpersistence-unit-name=<nombre>`**: Nombre de la Persistence Unit. (Por defecto: `defaultPU`)
-- **`-Ddatasource-name=<nombre>`**: Nombre JNDI del Data Source. (Por defecto: `defaultDatasource`)
-- **`-Durl=<jdbc-url>`**: URL de conexión JDBC. (Por defecto: H2 in-memory)
-- **`-Duser=<usuario>`**: Usuario de base de datos.
-- **`-Dpassword=<clave>`**: Contraseña de base de datos.
-- **`-Ddeclare=<web|...>`**: Lugar donde declarar el recurso (Por defecto: `web`).
+
+Configures the persistence unit (JPA).
+
+- **`-Dpersistence-unit-name=<name>`**: Persistence unit name. (Default: `defaultPU`)
+- **`-Ddatasource-name=<name>`**: Data Source JNDI name. (Default: `defaultDatasource`)
+- **`-Durl=<jdbc-url>`**: JDBC connection URL. (Default: H2 in-memory)
+- **`-Duser=<user>`**: Database user.
+- **`-Dpassword=<password>`**: Database password.
+- **`-Ddeclare=<web|...>`**: Location where the resource is declared. (Default: `web`)
 
 ### `add-datasource`
-Agrega la configuración de un Data Source.
-- *(Mismas opciones que `add-persistence`)*.
+
+Adds Data Source configuration.
+
+- Uses the same options as `add-persistence`.
 
 ### `add-entities`
-Integra definiciones de entidades JPA en el proyecto.
-- **`-Dentities-file=<path>`**: Ruta al archivo de definición de entidades. (**Requerido**)
+
+Integrates JPA entity definitions into the project.
+
+- **`-Dentities-file=<path>`**: Path to the entity definition file. (**Required**)
 
 ---
 
-## 🏗️ Arquitectura y Scaffolding
+## Application Model
 
 ### `add-domain-models`
-Genera capas de arquitectura (DTOs, Mappers, Repositorios y Servicios) basándose en una definición de entidades.
-- **`-Dentities-file=<path>`**: Ruta al archivo JSON con la definición de entidades. (**Requerido**)
+
+Generates application model layers (DTOs, mappers, repositories, and services) from an entity definition.
+
+- **`-Dentities-file=<path>`**: Path to the JSON entity definition file. (**Required**)
 
 ### `create-openapi`
-Genera el código del lado del servidor (server-side) a partir de una especificación OpenAPI.
-- **`-Dopenapi-server=<path>`**: Ruta al archivo OpenAPI (yml/json). (Por defecto: `${project.basedir}/openapi.yml`)
+
+Generates server-side code from an OpenAPI specification.
+
+- **`-Dopenapi-server=<path>`**: Path to the OpenAPI file (YAML/JSON). (Default: `${project.basedir}/openapi.yml`)
 
 ---
 
-## 🎨 Jakarta Faces (JSF)
+## Jakarta Faces
 
 ### `add-faces`
-Configura Jakarta Faces en el proyecto (dependencias y declaración en `web.xml`).
-- **`-Dwelcome-file=<nombre>`**: Nombre del archivo de bienvenida. (Por defecto: `index.xhtml`)
+
+Configures Jakarta Faces in the project, including dependencies and the `web.xml` declaration.
+
+- **`-Dwelcome-file=<name>`**: Welcome file name. (Default: `index.xhtml`)
 
 ### `add-face-page`
-Agrega una nueva página JSF al proyecto.
-- **`-Dname=<nombre>`**: Nombre de la página (sin extensión). (**Requerido**)
-- **`-Dmanaged-bean=<true|false>`**: Indica si se debe crear un backing bean asociado. (Por defecto: `true`)
-- **`-Dtemplate=<nombre>`**: (Opcional) Nombre del template Facelet a utilizar.
+
+Adds a new Jakarta Faces page to the project.
+
+- **`-Dname=<name>`**: Page name without the extension. (**Required**)
+- **`-Dmanaged-bean=<true|false>`**: Whether to create an associated backing bean. (Default: `true`)
+- **`-Dtemplate=<name>`**: Optional Facelet template name.
 
 ### `add-face-template`
-Crea un nuevo template Facelet.
-- **`-Dname=<nombre>`**: Nombre del template. (**Requerido**)
-- **`-Dinserts=<lista>`**: Lista separada por comas de nombres para los `ui:insert`.
+
+Creates a new Facelet template.
+
+- **`-Dname=<name>`**: Template name. (**Required**)
+- **`-Dinserts=<list>`**: Comma-separated list of names for `ui:insert` elements.
 
 ### `add-forms-from-entities`
-Genera formularios CRUD de JSF/PrimeFaces a partir de entidades.
-- **`-Dforms-file=<path>`**: Ruta al JSON de definición de formularios. (**Requerido**)
-- **`-Dentities-file=<path>`**: Ruta al JSON de definición de entidades. (**Requerido**)
- 
+
+Generates Jakarta Faces/PrimeFaces CRUD forms from entities.
+
+- **`-Dforms-file=<path>`**: Path to the JSON form definition file. (**Required**)
+- **`-Dentities-file=<path>`**: Path to the JSON entity definition file. (**Required**)
+
 ---
 
-## 🛠️ Utilidades
+## Utilities
 
 ### `add-validation-api`
-Agrega las dependencias de Jakarta Validation API para habilitar validaciones mediante anotaciones (`@NotNull`, `@Size`, etc.).
 
+Adds Jakarta Validation API dependencies to enable annotation-based validation such as `@NotNull` and `@Size`.
