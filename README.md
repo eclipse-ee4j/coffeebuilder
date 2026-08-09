@@ -1,13 +1,13 @@
-# Jakarta Coffee Builder Plugin
+# Coffee Builder Maven Plugin
 
-Este plugin de Maven automatiza la configuración y el andamiaje (scaffolding) de proyectos Jakarta EE, facilitando la adopción de mejores prácticas y acelerando el desarrollo inicial.
+Este plugin de Maven agrega capacidades Jakarta EE de forma incremental a un proyecto existente. Coffee Builder genera la base y el desarrollador construye la aplicación.
 
 ## 🚀 Uso desde la Línea de Comandos
 
 Todos los "goals" del plugin pueden ejecutarse directamente sin necesidad de estar configurados en el `pom.xml`, utilizando la siguiente sintaxis:
 
 ```bash
-mvn com.apuntesdejava:jakarta-coffee-builder-plugin:<goal> -D<opcion>=<valor>
+mvn io.github.coffee-builder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<opcion>=<valor>
 ```
 
 ---

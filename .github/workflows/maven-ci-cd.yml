@@ -1,5 +1,5 @@
 # .github/workflows/maven-ci-cd.yml
-name: Java CI/CD with Maven
+name: Coffee Builder Maven Plugin CI/CD
 
 on:
   push:

@@ -13,9 +13,9 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.apuntesdejava</groupId>
-                <artifactId>jakarta-coffee-builder-plugin</artifactId>
-                <version>0.0.2-SNAPSHOT</version>
+                <groupId>io.github.coffee-builder</groupId>
+                <artifactId>coffee-builder-maven-plugin</artifactId>
+                <version>0.0.8-SNAPSHOT</version>
             </plugin>
         </plugins>
     </build>

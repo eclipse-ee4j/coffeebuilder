@@ -1,3 +1,4 @@
-File touchFile = new File( basedir, "target/touch.txt" );
+File buildLog = new File( basedir, "build.log" );
 
-assert touchFile.isFile()
+assert buildLog.isFile()
+assert buildLog.text.contains("Coffee Builder Maven Plugin")
