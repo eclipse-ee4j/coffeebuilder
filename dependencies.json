@@ -9,6 +9,11 @@
     "artifactId": "mapstruct",
     "version": "1.6.3"
   },
+  "primefaces": {
+    "groupId": "org.primefaces",
+    "artifactId": "primefaces",
+    "version": "15.0.17"
+  },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
     "artifactId": "maven-compiler-plugin",
