@@ -2,6 +2,7 @@
   "h2": {
     "dialect": "org.hibernate.dialect.H2Dialect",
     "coordinates": "com.h2database:h2",
+    "version": "2.4.240",
     "dataSourceClass": "org.h2.jdbcx.JdbcDataSource"
   },
   "hsqldb": {
