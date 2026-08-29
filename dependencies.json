@@ -4,6 +4,11 @@
     "artifactId": "hibernate-core",
     "version": "7.4.4.Final"
   },
+  "mapstruct": {
+    "groupId": "org.mapstruct",
+    "artifactId": "mapstruct",
+    "version": "1.6.3"
+  },
   "maven-compiler-plugin": {
     "groupId": "org.apache.maven.plugins",
     "artifactId": "maven-compiler-plugin",
