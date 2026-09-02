@@ -16,6 +16,7 @@
   "mysql": {
     "dialect": "org.hibernate.dialect.MySQLDialect",
     "coordinates": "com.mysql:mysql-connector-j",
+    "version": "26.7.0",
     "dataSourceClass": "com.mysql.cj.jdbc.MysqlDataSource"
   },
   "postgresql": {
