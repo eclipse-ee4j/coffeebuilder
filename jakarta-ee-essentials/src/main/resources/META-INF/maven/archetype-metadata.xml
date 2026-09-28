@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+                      name="${artifactId}">
+
+    <fileSets>
+        <!-- Wrapper scripts present in archetype-resources root -->
+        <fileSet filtered="false" packaged="false">
+            <directory/>
+            <includes>
+                <include>mvnw</include>
+                <include>mvnw.cmd</include>
+                <include>.gitignore</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="false" packaged="false">
+            <directory>.mvn</directory>
+            <includes>
+                <include>jvm.config</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="false" packaged="false">
+            <directory>.mvn/wrapper</directory>
+            <includes>
+                <include>maven-wrapper.properties</include>
+            </includes>
+        </fileSet>
+
+        <!-- Java sources go under the chosen package -->
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.java</include>
+            </includes>
+        </fileSet>
+
+        <!-- Explicitly list resources to avoid duplicate directory creation warnings -->
+        <fileSet filtered="true" packaged="false">
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>META-INF/beans.xml</include>
+                <include>META-INF/persistence.xml</include>
+            </includes>
+        </fileSet>
+
+        <!-- Web resources only when module = web (left as plain files; no packaging) -->
+        <!-- #if( $jakartaModule == "web" ) -->
+        <fileSet filtered="true" packaged="false">
+            <directory>src/main/webapp</directory>
+            <includes>
+                <include>index.html</include>
+                <include>WEB-INF/web.xml</include>
+            </includes>
+        </fileSet>
+        <!-- #end -->
+
+        <!-- No src/test/java templates provided currently -->
+    </fileSets>
+    <requiredProperties>
+        <requiredProperty key="jakartaProfile">
+            <defaultValue>full</defaultValue>
+            <description>Jakarta EE Profile</description>
+            <type>string</type>
+            <required>true</required>
+            <expression>^(core|web|full)$</expression>
+        </requiredProperty>
+        <requiredProperty key="jakartaVersion">
+            <defaultValue>11.0.0</defaultValue>
+            <description>Jakarta EE Version</description>
+            <type>string</type>
+            <required>true</required>
+            <expression>^(10.0.0|11.0.0)$</expression>
+        </requiredProperty>
+        <requiredProperty key="jakartaModule">
+            <defaultValue>web</defaultValue>
+            <type>string</type>
+            <description>Module</description>
+            <required>true</required>
+            <expression>^(web|ejb)$</expression>
+        </requiredProperty>
+        <requiredProperty key="apiBasePath">
+            <defaultValue>/api</defaultValue>
+            <description>Base path for the JAX-RS application (e.g., /api, /rest)</description>
+            <type>string</type>
+            <required>true</required>
+        </requiredProperty>
+
+    </requiredProperties>
+</archetype-descriptor>
