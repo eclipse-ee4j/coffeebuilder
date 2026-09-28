@@ -1,0 +1,112 @@
+{
+  "hibernate": {
+    "groupId": "org.hibernate.orm",
+    "artifactId": "hibernate-core",
+    "version": "7.4.4.Final"
+  },
+  "mapstruct": {
+    "groupId": "org.mapstruct",
+    "artifactId": "mapstruct",
+    "version": "1.6.3"
+  },
+  "primefaces": {
+    "groupId": "org.primefaces",
+    "artifactId": "primefaces",
+    "version": "15.0.17"
+  },
+  "maven-compiler-plugin": {
+    "groupId": "org.apache.maven.plugins",
+    "artifactId": "maven-compiler-plugin",
+    "version": "3.15.0"
+  },
+  "build-helper-maven-plugin": {
+    "groupId": "org.codehaus.mojo",
+    "artifactId": "build-helper-maven-plugin",
+    "version": "3.6.1"
+  },
+  "jakarta-faces-10.0.0": {
+    "groupId": "jakarta.faces",
+    "artifactId": "jakarta.faces-api",
+    "version": "4.0.1"
+  },
+  "jakarta-faces-11.0.0": {
+    "groupId": "jakarta.faces",
+    "artifactId": "jakarta.faces-api",
+    "version": "4.1.2"
+  },
+  "jakarta-persistence-10.0.0": {
+    "groupId": "jakarta.persistence",
+    "artifactId": "jakarta.persistence-api",
+    "version": "3.1.0"
+  },
+  "jakarta-persistence-11.0.0": {
+    "groupId": "jakarta.persistence",
+    "artifactId": "jakarta.persistence-api",
+    "version": "3.2.0"
+  },
+  "jakarta-cdi-10.0.0": {
+    "groupId": "jakarta.persistence",
+    "artifactId": "jakarta.enterprise.cdi-api",
+    "version": "4.0.1"
+  },
+  "jakarta-cdi-11.0.0": {
+    "groupId": "jakarta.persistence",
+    "artifactId": "jakarta.enterprise.cdi-api",
+    "version": "4.1.0"
+  },
+  "jakarta-data-11.0.0": {
+    "groupId": "jakarta.data",
+    "artifactId": "jakarta.data-api",
+    "version": "1.0.1"
+  },
+  "jakarta-mvc-10.0.0": {
+    "groupId": "jakarta.mvc",
+    "artifactId": "jakarta.mvc-api",
+    "version": "2.1.0"
+  },
+  "jakarta-mvc-11.0.0": {
+    "groupId": "jakarta.mvc",
+    "artifactId": "jakarta.mvc-api",
+    "version": "3.0.0"
+  },
+  "jakarta-transaction-10.0.0": {
+    "groupId": "jakarta.transaction",
+    "artifactId": "jakarta.transaction-api",
+    "version": "2.0.1"
+  },  "jakarta-transaction-11.0.0": {
+    "groupId": "jakarta.transaction",
+    "artifactId": "jakarta.transaction-api",
+    "version": "2.0.1"
+  },
+  "jackson-core": {
+    "groupId": "tools.jackson.core",
+    "artifactId": "jackson-core",
+    "version": "3.1.1"
+  },
+  "microprofile-openapi-api": {
+    "groupId": "org.eclipse.microprofile.openapi",
+    "artifactId": "microprofile-openapi-api",
+    "version": "4.1"
+  },
+  "jakarta.validation-api-11.0.0": {
+    "groupId": "jakarta.validation",
+    "artifactId": "jakarta.validation-api",
+    "version": "3.1.1"
+  },
+  "jakarta.validation-api-10.0.0": {
+    "groupId": "jakarta.validation",
+    "artifactId": "jakarta.validation-api",
+    "version": "3.0.2"
+  },
+  "openapi-generator-maven-plugin":{
+    "groupId": "org.openapitools",
+    "artifactId": "openapi-generator-maven-plugin",
+    "version": "7.23.0"
+  },
+  "payara-micro-maven-plugin":{
+    "groupId":"fish.payara.maven.plugins",
+    "artifactId":"payara-micro-maven-plugin",
+    "version":"2.5.2"
+  }
+ 
+}

@@ -1,0 +1,47 @@
+{
+  "h2": {
+    "dialect": "org.hibernate.dialect.H2Dialect",
+    "coordinates": "com.h2database:h2",
+    "version": "2.4.240",
+    "dataSourceClass": "org.h2.jdbcx.JdbcDataSource",
+    "defaultUrlParameters": {
+      "MODE": "LEGACY"
+    }
+  },
+  "hsqldb": {
+    "dialect": "org.hibernate.dialect.HSQLDialect",
+    "coordinates": "org.hsqldb:hsqldb",
+    "dataSourceClass": "org.hsqldb.jdbc.JDBCDataSource"
+  },
+  "mysql": {
+    "dialect": "org.hibernate.dialect.MySQLDialect",
+    "coordinates": "com.mysql:mysql-connector-j",
+    "version": "26.7.0",
+    "dataSourceClass": "com.mysql.cj.jdbc.MysqlDataSource"
+  },
+  "postgresql": {
+    "dialect": "org.hibernate.dialect.PostgreSQLDialect",
+    "coordinates": "org.postgresql:postgresql",
+    "dataSourceClass": "org.postgresql.ds.PGPoolingDataSource"
+  },
+  "oracle": {
+    "dialect": "org.hibernate.dialect.OracleDialect",
+    "coordinates": "com.oracle.database.jdbc:ojdbc11",
+    "dataSourceClass": "oracle.jdbc.pool.OracleDataSource"
+  },
+  "sqlserver": {
+    "dialect": "org.hibernate.dialect.SQLServerDialect",
+    "coordinates": "com.microsoft.sqlserver:mssql-jdbc",
+    "dataSourceClass": "com.microsoft.sqlserver.jdbc.SQLServerDataSource"
+  },
+  "derby": {
+    "dialect": "org.hibernate.dialect.DerbyDialect",
+    "coordinates": "org.apache.derby:derbyclient",
+    "dataSourceClass": "org.apache.derby.jdbc.ClientDataSource"
+  },
+  "mariadb": {
+    "dialect": "org.hibernate.dialect.MariaDBDialect",
+    "coordinates": "org.mariadb.jdbc:mariadb-java-client",
+    "dataSourceClass": "org.mariadb.jdbc.MariaDbDataSource"
+  }
+}

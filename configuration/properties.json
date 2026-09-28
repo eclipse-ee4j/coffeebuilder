@@ -1,0 +1,10 @@
+{
+  "jpa-hibernate":[
+    {"name":"hibernate.enhancer.enableDirtyTracking","value":"false"},
+    {"name":"hibernate.enhancer.enableLazyInitialization","value":"false"},
+    {"name":"hibernate.transaction.jta.platform","value":"org.hibernate.service.jta.platform.internal.SunOneJtaPlatform"},
+    {"name":"hibernate.show_sql","value":"true"},
+    {"name":"hibernate.format_sql","value":"true"},
+    {"name":"hibernate.hbm2ddl.auto","value":"create"}
+  ]
+}
