@@ -233,7 +233,7 @@
                             <goal>helpmojo</goal>
                         </goals>
                         <configuration>
-                            <helpPackageName>io.github.coffeebuilder</helpPackageName>
+                            <helpPackageName>org.eclipse.coffeebuilder</helpPackageName>
                         </configuration>
                     </execution>
                 </executions>
@@ -330,7 +330,7 @@
                                 </goals>
                                 <configuration>
                                     <excludePackageNames>
-                                        io.github.coffeebuilder
+                                        org.eclipse.coffeebuilder
                                     </excludePackageNames>
                                 </configuration>
                             </execution>
