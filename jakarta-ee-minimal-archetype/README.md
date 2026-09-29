@@ -13,7 +13,7 @@ To generate a new project using this archetype, run the following command in you
 mvn archetype:generate \
     -DarchetypeGroupId=org.eclipse.coffeebuilder \
     -DarchetypeArtifactId=jakarta-ee-minimal-archetype \
-    -DarchetypeVersion=0.0.8 \
+    -DarchetypeVersion=0.1.0-SNAPSHOT \
     -DjakartaProfile=core \
     -DjakartaVersion=11.0.0 \
     -DjakartaModule=web \
@@ -29,7 +29,7 @@ mvn archetype:generate \
 mvn archetype:generate `
     -DarchetypeGroupId="org.eclipse.coffeebuilder" `
     -DarchetypeArtifactId="jakarta-ee-minimal-archetype" `
-    -DarchetypeVersion="0.0.8" `
+    -DarchetypeVersion="0.1.0-SNAPSHOT" `
     -DjakartaProfile="core" `
     -DjakartaVersion="11.0.0" `
     -DjakartaModule="web" `

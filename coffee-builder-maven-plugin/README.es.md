@@ -9,7 +9,7 @@ Este plugin de Maven agrega capacidades Jakarta EE de forma incremental a un pro
 Todos los "goals" del plugin pueden ejecutarse directamente sin necesidad de estar configurados en el `pom.xml`, utilizando la siguiente sintaxis:
 
 ```bash
-mvn org.eclipse.coffeebuilder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<opcion>=<valor>
+mvn org.eclipse.coffeebuilder:coffee-builder-maven-plugin:0.1.0-SNAPSHOT:<goal> -D<opcion>=<valor>
 ```
 
 ---

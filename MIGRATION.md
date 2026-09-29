@@ -2,19 +2,25 @@
 
 ## Objective
 
-Migrate Coffee Builder from the personal GitHub organization into the Eclipse Foundation repository while preserving behavior, history, and release coherence.
+Migrate Coffee Builder from the personal GitHub organization into the Eclipse Foundation repository while preserving useful history, keeping changes incremental, and validating each migration phase independently.
 
 Target repository:
 
-- `https://github.com/eclipse-ee4j/coffeebuilder`
+```text
+eclipse-ee4j/coffeebuilder
+```
 
 Target Java namespace and Maven groupId:
 
-- `org.eclipse.coffeebuilder`
+```text
+org.eclipse.coffeebuilder
+```
 
 The migration must be performed incrementally and validated after each phase.
 
 ## Current source mapping
+
+The monorepo was created from the following source branches:
 
 - `coffee-builder-maven-plugin`
   - source branch: `main`
@@ -23,27 +29,34 @@ The migration must be performed incrementally and validated after each phase.
 - `jakarta-ee-essentials`
   - source branch: `master`
 
-## Monorepo structure
+The original histories were imported into the Eclipse repository using Git subtree without squashing.
+
+## Current monorepo structure
 
 ```text
 coffeebuilder/
 ├── coffee-builder-maven-plugin/
 ├── configuration/
-└── jakarta-ee-minimal-archetype/
+├── jakarta-ee-minimal-archetype/
+└── MIGRATION.md
 ```
 
 ## Migration rules
 
 - Do not perform unrelated refactors.
-- Do not change behavior unless explicitly requested by the current phase.
-- Keep each migration phase independently buildable/testable.
+- Do not change behavior unless explicitly requested by the active phase.
+- Keep each migration phase independently buildable and testable.
 - Do not commit or push unless explicitly requested.
-- Report all modified files after each phase.
-- Run relevant tests after each phase.
+- Report all modified, added, removed, or renamed files after each phase.
+- Run all validation steps required by the active phase.
+- Do not execute future phases early.
+- Preserve migration history in this document where useful.
+
+---
 
 ## Phase 1 — Java namespace
 
-Status: completed.
+**Status: COMPLETE**
 
 Scope:
 
@@ -57,7 +70,7 @@ io.github.coffeebuilder
 org.eclipse.coffeebuilder
 ```
 
-Includes:
+Included:
 
 - Java package declarations
 - imports
@@ -65,44 +78,43 @@ Includes:
 - source directory paths
 - test source directory paths
 - Javadoc references
-- Maven plugin configuration that references Java packages
+- Maven plugin configuration values that refer to Java packages
 
-Excluded from this phase:
+Excluded:
 
-- Maven groupId `io.github.coffee-builder`
+- Maven groupId
 - artifactId
 - version
 - GitHub URLs
 - website URLs
-- `PRD_BASE_URL`
-- `DEV_BASE_URL`
-- README Maven invocation examples
-- configuration files
-- jakarta-ee-essentials
-- unrelated sample/test Maven groupIds
+- configuration URLs
+- unrelated Maven coordinates used by generated or integration-test projects
 
-Validation completed:
+Validation result:
 
-```text
-mvn test
-```
-
-Result:
-
+- `mvn test`
 - 146 tests
 - 0 failures
 - 0 errors
 - 0 skipped
 
+Commit:
+
+```text
+3089cbc Migrate Java namespace to org.eclipse.coffeebuilder
+```
+
+---
+
 ## Phase 2 — Maven coordinates
 
-Status: completed.
+**Status: COMPLETE**
 
 Scope:
 
 - `coffee-builder-maven-plugin`
-- `jakarta-ee-essentials`
-- documentation/examples directly tied to those Maven artifacts
+- original `jakarta-ee-essentials` module
+- documentation and examples directly tied to those Maven artifacts
 
 Change Maven groupId:
 
@@ -112,98 +124,123 @@ io.github.coffee-builder
 org.eclipse.coffeebuilder
 ```
 
-ArtifactIds remained unchanged during this phase:
+ArtifactIds were kept unchanged during this phase.
 
-```text
-coffee-builder-maven-plugin
-jakarta-ee-essentials
-```
+Included:
 
-Includes:
-
-- project Maven `groupId`
-- Maven invocation examples in README files
+- project Maven groupId values
+- README Maven invocation examples
 - archetype invocation examples
-- Maven plugin examples in JavaDoc or sample POMs
-- tests that explicitly validate or use Coffee Builder Maven coordinates
-- integration-test POMs when they refer to Coffee Builder artifacts
+- JavaDoc Maven plugin examples
+- integration-test POM references to Coffee Builder artifacts
+- tests that explicitly use Coffee Builder Maven coordinates
 
-Excluded from this phase:
+Excluded:
 
-- Java namespace
-- project version
+- unrelated generated/test application coordinates
+- `io.github.coffeebuilder.it` used by the simple integration-test project
+- versions
 - GitHub URLs
 - website URLs
-- `PRD_BASE_URL`
-- `DEV_BASE_URL`
+- configuration URLs
 - `distributionManagement`
-- repository structure
-- `configuration`
-- unrelated sample application groupIds
 
-Validation completed:
+Validation result:
 
-- `coffee-builder-maven-plugin`: BUILD SUCCESS, 146 tests, 0 failures, 0 errors, 0 skipped
-- `jakarta-ee-essentials`: BUILD SUCCESS
+- `coffee-builder-maven-plugin`: BUILD SUCCESS, 146 tests
+- archetype module: BUILD SUCCESS
+
+Commit:
+
+```text
+e0c1cac Migrate Maven coordinates to org.eclipse.coffeebuilder
+```
+
+---
 
 ## Phase 3 — Eclipse repository metadata
 
-Status: completed.
+**Status: COMPLETE**
 
 Scope:
 
-- root repository metadata where applicable
-- `coffee-builder-maven-plugin` metadata
-- `jakarta-ee-essentials` metadata
+- Maven metadata for `coffee-builder-maven-plugin`
+- Maven metadata for the archetype module
 
 Updated:
 
-- project URL to `https://projects.eclipse.org/projects/ee4j.coffeebuilder`
-- SCM URLs to `https://github.com/eclipse-ee4j/coffeebuilder`
-- developer organization to Eclipse Foundation
-- organization URL to the Eclipse project page
+- top-level project URL:
 
-Excluded from this phase:
+```text
+https://projects.eclipse.org/projects/ee4j.coffeebuilder
+```
+
+- developer organization:
+
+```text
+Eclipse Foundation
+```
+
+- organization URL:
+
+```text
+https://projects.eclipse.org/projects/ee4j.coffeebuilder
+```
+
+- SCM repository:
+
+```text
+https://github.com/eclipse-ee4j/coffeebuilder
+```
+
+SCM URLs remain GitHub repository URLs, while the Maven project URL points to the official Eclipse project page.
+
+Excluded:
 
 - `distributionManagement`
-- `PRD_BASE_URL`
-- `DEV_BASE_URL`
 - configuration publishing strategy
-- versions
-- artifactIds
-- license text or copyright headers
+- project versions
 - CI/CD
 - release automation
+- copyright/license header migration
 
-Validation completed:
+Validation result:
 
-- `coffee-builder-maven-plugin`: BUILD SUCCESS, 146 tests, 0 failures, 0 errors, 0 skipped
-- `jakarta-ee-essentials`: BUILD SUCCESS
+- `coffee-builder-maven-plugin`: BUILD SUCCESS, 146 tests
+- archetype module: BUILD SUCCESS
+
+Commit:
+
+```text
+eaf70f3 Update Eclipse project metadata
+```
+
+---
 
 ## Phase 4 — Configuration loading strategy
 
-Status: completed.
+**Status: COMPLETE**
 
 ### Objective
 
-Make the stable Coffee Builder configuration part of the Maven plugin artifact itself while preserving the existing `-Ddevel=true` mechanism for testing configuration changes before a release.
+Make the stable Coffee Builder configuration part of the Maven plugin artifact itself, while preserving the existing `-Ddevel=true` mechanism for testing configuration changes before a release.
 
 ### Production behavior
 
 When the `devel` system property is absent or false:
 
-- load configuration JSON files from the plugin classpath
-- package configuration files inside the plugin JAR under:
+- configuration JSON files are loaded from the plugin classpath
+- configuration files are packaged in the plugin JAR under:
 
 ```text
 /configuration/
 ```
 
-- source the packaged files directly from the monorepo root `configuration/` directory
-- package only JSON configuration files
-- do not package the configuration README or LICENSE into the plugin JAR
+- only JSON files from the monorepo `configuration/` directory are packaged
+- the configuration `README` and `LICENSE` are not packaged as plugin resources
+- no production HTTP request is required for configuration loading
 
-This guarantees that the production configuration corresponds exactly to the released plugin artifact and does not change remotely after publication.
+This guarantees that the configuration used by a released plugin is the configuration shipped with that artifact.
 
 ### Development behavior
 
@@ -213,53 +250,69 @@ When:
 -Ddevel=true
 ```
 
-is enabled:
-
-- load configuration remotely through HTTP
-- use the Eclipse Coffee Builder monorepo development branch:
+is enabled, configuration is loaded remotely from:
 
 ```text
 https://raw.githubusercontent.com/eclipse-ee4j/coffeebuilder/refs/heads/develop/configuration
 ```
 
+This preserves the original purpose of development mode: testing catalog/configuration changes before they are included in a released artifact.
+
 ### Implementation
 
-- introduced an internal `ConfigurationLoader`
-- kept `HttpUtil` focused on HTTP operations
-- preserved the public `CoffeeBuilderUtil` API
-- removed the obsolete production remote URL strategy
-- packaged the eight configuration JSON files from `../configuration`
+A package-private `ConfigurationLoader` chooses between:
 
-Validation completed:
+- classpath resources for production/default mode
+- remote HTTP resources for development mode
+
+`HttpUtil` remains focused on HTTP responsibilities.
+
+`CoffeeBuilderUtil` preserves its public configuration APIs.
+
+The plugin POM packages JSON resources from:
+
+```text
+${project.basedir}/../configuration
+```
+
+into:
+
+```text
+configuration/
+```
+
+inside the plugin artifact.
+
+### Validation result
 
 - `mvn test`: BUILD SUCCESS
 - 148 tests
 - 0 failures
 - 0 errors
 - 0 skipped
-- plugin JAR contains all eight expected `configuration/*.json` resources
+- plugin packaging succeeded
+- all eight expected `configuration/*.json` files were verified inside the built JAR
+- packaged JSON files matched the monorepo source files
 
-## Phase 5 — Rename and validate Jakarta EE minimal archetype
+Commit:
 
-Status: completed.
+```text
+60587d0 Embed configuration resources in Maven plugin
+```
+
+---
+
+## Phase 5 — Jakarta EE minimal archetype rename
+
+**Status: COMPLETE**
 
 ### Objective
 
-Rename the generic Jakarta EE starter archetype so that its purpose is explicit and independent from Coffee Builder.
+Rename the generic Jakarta EE archetype so its name accurately communicates its purpose: generating a minimal, clean, functional Jakarta EE project that can be used independently of Coffee Builder.
 
-The archetype generates a minimal, clean, functional Jakarta EE project and can be used independently of the Coffee Builder Maven plugin.
+The archetype is not functionally coupled to the Coffee Builder Maven plugin.
 
-Rename:
-
-```text
-jakarta-ee-essentials
-→
-jakarta-ee-minimal-archetype
-```
-
-### Scope
-
-Rename the module directory:
+### Directory rename
 
 ```text
 jakarta-ee-essentials/
@@ -267,7 +320,7 @@ jakarta-ee-essentials/
 jakarta-ee-minimal-archetype/
 ```
 
-Change the Maven artifactId:
+### Maven artifact rename
 
 ```text
 org.eclipse.coffeebuilder:jakarta-ee-essentials
@@ -275,67 +328,255 @@ org.eclipse.coffeebuilder:jakarta-ee-essentials
 org.eclipse.coffeebuilder:jakarta-ee-minimal-archetype
 ```
 
-Update references that directly identify the archetype artifact, including:
-
-- module `pom.xml`
-- README Maven archetype invocation examples
-- `.gitignore` entries tied to the old module/artifact name
-- tests or integration-test metadata that directly refer to the archetype artifactId
-- migration documentation references to the module name
-
-### Preserve
-
-Do not change the conceptual purpose of the archetype.
-
-It must remain:
-
-- independent from the Coffee Builder Maven plugin
-- usable as a standalone Maven archetype
-- minimal and intentionally opinion-light
-- compatible with the existing supported Jakarta EE profiles/modules/versions
-
-### Do not change yet
-
-- project version `0.0.8-SNAPSHOT`
-- generated sample project versions such as `1.0.0` or `1.0-SNAPSHOT`
-- Maven groupId `org.eclipse.coffeebuilder`
-- generated project package conventions
-- archetype functional behavior
-- `distributionManagement`
-- CI/CD workflows
-- release automation
-- root parent/aggregator structure
-
-### Validation
-
-From the renamed archetype module, run:
+The Maven groupId remains:
 
 ```text
-mvn verify
+org.eclipse.coffeebuilder
 ```
 
-The integration scenarios must continue to succeed, including the existing archetype IT cases for:
+The project version was intentionally left unchanged during this phase.
+
+### Updated references
+
+- module directory
+- Maven `artifactId`
+- README archetype invocation examples
+- IDE `.iml` ignore entry
+- current monorepo structure in this migration plan
+
+### Preserved behavior
+
+Generated/test project coordinates remain unchanged, including examples such as:
+
+```text
+com.example:testcustom:1.0.0
+com.example:testejb10:1.0.0
+com.example:testfull11:1.0.0
+com.example:testweb10:1.0.0
+```
+
+### Validation result
+
+`mvn verify` succeeded for the renamed archetype.
+
+Validated scenarios:
 
 - custom API path
 - Jakarta EE 10 core / EJB
 - Jakarta EE 11 full / web
 - Jakarta EE 10 web profile
 
-No functional behavior change is expected in this phase.
+All generated projects compiled and packaged successfully.
 
-Validation completed:
+Commit:
 
-- `mvn verify`: BUILD SUCCESS
-- custom API path: BUILD SUCCESS
-- Jakarta EE 10 core / EJB: BUILD SUCCESS
-- Jakarta EE 11 full / web: BUILD SUCCESS
-- Jakarta EE 10 web profile: BUILD SUCCESS
+```text
+9c96d33 Rename Jakarta EE archetype module
+```
+
+---
+
+## Phase 6 — Monorepo build and unified versioning
+
+**Status: COMPLETE**
+
+### Objective
+
+Turn the current repository into a coherent Maven monorepo with a single root build, shared project version, and explicit module relationship while keeping `configuration/` as a non-Maven resource component that participates in the Coffee Builder release lifecycle.
+
+### Target structure
+
+```text
+coffeebuilder/
+├── pom.xml
+├── MIGRATION.md
+├── coffee-builder-maven-plugin/
+│   └── pom.xml
+├── jakarta-ee-minimal-archetype/
+│   └── pom.xml
+└── configuration/
+```
+
+### Root Maven project
+
+Create a root Maven parent/aggregator with:
+
+```text
+groupId:    org.eclipse.coffeebuilder
+artifactId: coffeebuilder-parent
+packaging:  pom
+version:    0.1.0-SNAPSHOT
+```
+
+The root POM must declare exactly these Maven modules:
+
+```text
+coffee-builder-maven-plugin
+jakarta-ee-minimal-archetype
+```
+
+The `configuration/` directory must **not** be declared as a Maven module.
+
+### Unified versioning
+
+Move the two Maven modules to the shared Coffee Builder development version:
+
+```text
+0.1.0-SNAPSHOT
+```
+
+Both child modules should inherit the project version from the root parent rather than declaring independent versions where practical.
+
+The intended release model is:
+
+```text
+Coffee Builder 0.1.0
+├── coffee-builder-maven-plugin 0.1.0
+├── jakarta-ee-minimal-archetype 0.1.0
+└── configuration/ from the same repository state/tag
+```
+
+`configuration/` has no Maven artifact version of its own; its version is represented by the repository release/tag that also produces the Maven artifacts.
+
+### Parent relationship
+
+Both Maven modules should declare the root project as their parent using:
+
+```text
+org.eclipse.coffeebuilder:coffeebuilder-parent:0.1.0-SNAPSHOT
+```
+
+Use an appropriate relative path to the root POM.
+
+Child artifactIds remain:
+
+```text
+coffee-builder-maven-plugin
+jakarta-ee-minimal-archetype
+```
+
+### Metadata inheritance
+
+Prefer inheritance from the root POM for project metadata that is truly common and safe to centralize, such as:
+
+- `groupId`
+- project version
+- project URL
+- license
+- SCM repository
+- organization metadata
+- source encoding
+
+Do not aggressively centralize unrelated build configuration merely to reduce duplication.
+
+Module-specific metadata and build behavior should remain in the module POMs.
+
+### Configuration relationship
+
+Preserve the Phase 4 behavior where the Maven plugin packages JSON files from:
+
+```text
+configuration/
+```
+
+The root build must continue to allow the Maven plugin to access and package those JSON resources correctly.
+
+Do not convert `configuration/` into a Maven artifact or Maven module.
+
+### Version references in documentation/tests
+
+Update references to the old Coffee Builder artifact version where they refer to the actual Coffee Builder Maven artifacts.
+
+For example, README invocations that currently use:
+
+```text
+0.0.8
+```
+
+should be updated to the new development/release context where appropriate.
+
+Do **not** change unrelated generated-project versions such as:
+
+```text
+1.0.0
+1.0-SNAPSHOT
+```
+
+when those versions belong to projects generated by the archetype or integration-test fixtures rather than Coffee Builder itself.
+
+### Validation
+
+From the repository root, run:
+
+```bash
+mvn verify
+```
+
+The root reactor build must include both Maven modules and complete successfully.
+
+Also verify:
+
+- the Maven plugin unit tests pass
+- the archetype integration tests pass
+- the Maven plugin JAR still contains all expected `configuration/*.json` resources
+- child module versions resolve to `0.1.0-SNAPSHOT`
+- the reactor order is valid
+- no Coffee Builder Maven artifact remains on `0.0.8-SNAPSHOT`
+- no accidental changes were made to generated/test-project versions
+
+### Validation result
+
+- root `mvn verify`: BUILD SUCCESS
+- reactor order: parent, Maven plugin, minimal archetype
+- Maven plugin: BUILD SUCCESS, 148 tests, 0 failures, 0 errors, 0 skipped
+- minimal archetype: BUILD SUCCESS
+- all four archetype integration scenarios passed
+- both child modules resolved to `0.1.0-SNAPSHOT`
+- the plugin JAR contained all eight expected `configuration/*.json` resources
+- packaged configuration JSON matched the monorepo source files
+- generated/test-project versions remained unchanged
+
+### Explicit exclusions
+
+Do not change in Phase 6:
+
+- CI/CD workflows
+- GitHub Actions behavior
+- release signing
+- deployment credentials
+- `distributionManagement`
+- Maven Central publishing strategy
+- Eclipse release automation
+- copyright/license headers
+- line-ending policy
+- `.gitattributes`
+- branch strategy
+- repository protection rules
+- unrelated source code behavior
+
+### Completion report
+
+When Phase 6 is executed, report:
+
+- root POM created
+- all child POM changes
+- inherited vs module-specific metadata decisions
+- all Coffee Builder version changes
+- documentation version changes
+- complete Maven reactor order
+- complete `mvn verify` result
+- plugin test result
+- archetype integration-test result
+- confirmation of packaged configuration resources
+- remaining `0.0.8` references and why they remain
+- any design decisions or problems encountered
 
 Do not commit or push automatically.
 
+---
+
 ## Future phases
 
-- Phase 6 — Monorepo parent/build structure and coordinated versioning
 - Phase 7 — CI/CD and Eclipse release preparation
-- Phase 8 — repository hygiene, line endings, legal headers and contribution metadata
-- Phase 9 — documentation and JakartaOne readiness
+- Phase 8 — Repository hygiene, legal metadata, line endings, and contributor documentation
+- Phase 9 — Documentation and JakartaOne readiness

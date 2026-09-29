@@ -4,29 +4,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.eclipse.coffeebuilder</groupId>
+    <parent>
+        <groupId>org.eclipse.coffeebuilder</groupId>
+        <artifactId>coffeebuilder-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <artifactId>jakarta-ee-minimal-archetype</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
     <description>
         Maven archetype for generating clean Jakarta EE projects with configurable platform version, profile and module type.
     </description>
-    <url>https://projects.eclipse.org/projects/ee4j.coffeebuilder</url>
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
     <developers>
         <developer>
             <id>diegosilva</id>
             <name>Diego Silva Límaco</name>
             <email>diego.silva@apuntesdejava.com</email>
-            <organization>Eclipse Foundation</organization>
-            <organizationUrl>https://projects.eclipse.org/projects/ee4j.coffeebuilder</organizationUrl>
             <roles>
                 <role>Founder</role>
                 <role>Developer</role>
@@ -34,23 +30,10 @@
         </developer>
     </developers>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
         <java.version>21</java.version>
         <java.version.release>21</java.version.release>
     </properties>
-    <scm>
-        <connection>
-            scm:git:https://github.com/eclipse-ee4j/coffeebuilder.git
-        </connection>
-        <developerConnection>
-            scm:git:ssh://git@github.com/eclipse-ee4j/coffeebuilder.git
-        </developerConnection>
-        <url>
-            https://github.com/eclipse-ee4j/coffeebuilder
-        </url>
-        <tag>HEAD</tag>
-    </scm>
     <distributionManagement>
         <snapshotRepository>
             <id>central</id>
