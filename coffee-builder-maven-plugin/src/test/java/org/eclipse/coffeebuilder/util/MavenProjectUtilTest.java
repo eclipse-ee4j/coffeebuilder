@@ -45,12 +45,12 @@ class MavenProjectUtilTest {
         @Test
         @DisplayName("should replace non-alphanumeric characters with dots")
         void replacesSpecialChars() {
-            when(mockProject.getGroupId()).thenReturn("io.github.coffee-builder");
+            when(mockProject.getGroupId()).thenReturn("org.eclipse.coffeebuilder");
             when(mockProject.getArtifactId()).thenReturn("coffee-builder-maven-plugin");
 
             String result = MavenProjectUtil.getProjectPackage(mockProject);
 
-            assertEquals("io.github.coffee.builder.coffee.builder.maven.plugin", result);
+            assertEquals("org.eclipse.coffeebuilder.coffee.builder.maven.plugin", result);
         }
     }
 

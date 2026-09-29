@@ -11,7 +11,7 @@ The Coffee Builder Maven Plugin incrementally adds Jakarta EE capabilities to an
 Plugin goals can be executed directly without adding the plugin to the project's `pom.xml`:
 
 ```bash
-mvn io.github.coffee-builder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<option>=<value>
+mvn org.eclipse.coffeebuilder:coffee-builder-maven-plugin:0.0.8-SNAPSHOT:<goal> -D<option>=<value>
 ```
 
 ---

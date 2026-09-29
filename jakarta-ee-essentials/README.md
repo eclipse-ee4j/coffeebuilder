@@ -11,7 +11,7 @@ To generate a new project using this archetype, run the following command in you
 
 ```shell
 mvn archetype:generate \
-    -DarchetypeGroupId=io.github.coffee-builder \
+    -DarchetypeGroupId=org.eclipse.coffeebuilder \
     -DarchetypeArtifactId=jakarta-ee-essentials \
     -DarchetypeVersion=0.0.8 \
     -DjakartaProfile=core \
@@ -27,7 +27,7 @@ mvn archetype:generate \
 
 ```powershell
 mvn archetype:generate `
-    -DarchetypeGroupId="io.github.coffee-builder" `
+    -DarchetypeGroupId="org.eclipse.coffeebuilder" `
     -DarchetypeArtifactId="jakarta-ee-essentials" `
     -DarchetypeVersion="0.0.8" `
     -DjakartaProfile="core" `

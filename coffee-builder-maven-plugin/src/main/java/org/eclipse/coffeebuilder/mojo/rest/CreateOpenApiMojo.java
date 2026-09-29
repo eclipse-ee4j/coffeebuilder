@@ -53,7 +53,7 @@ import java.util.Optional;
  * <pre>
  * {@code
  * <plugin>
- *   <groupId>io.github.coffee-builder</groupId>
+ *   <groupId>org.eclipse.coffeebuilder</groupId>
  *   <artifactId>coffee-builder-maven-plugin</artifactId>
  *   <version>1.0.0</version>
  *   <executions>

@@ -39,6 +39,8 @@ coffeebuilder/
 
 ## Phase 1 — Java namespace
 
+Status: completed.
+
 Scope:
 
 `coffee-builder-maven-plugin`
@@ -61,7 +63,7 @@ Includes:
 - Javadoc references
 - Maven plugin configuration that references Java packages
 
-Do not change yet:
+Do not change in this phase:
 
 - Maven groupId `io.github.coffee-builder`
 - artifactId
@@ -72,7 +74,7 @@ Do not change yet:
 - `DEV_BASE_URL`
 - README Maven invocation examples
 - configuration files
-- `jakarta-ee-essentials`
+- jakarta-ee-essentials
 - unrelated sample/test Maven groupIds
 
 Validation:
@@ -87,9 +89,76 @@ from:
 coffee-builder-maven-plugin
 ```
 
+Result:
+
+- 146 tests
+- 0 failures
+- 0 errors
+- 0 skipped
+
+## Phase 2 — Maven coordinates
+
+Scope:
+
+- `coffee-builder-maven-plugin`
+- `jakarta-ee-essentials`
+- Documentation/examples directly tied to those Maven artifacts
+
+Change Maven groupId:
+
+```text
+io.github.coffee-builder
+→
+org.eclipse.coffeebuilder
+```
+
+Keep artifactIds unchanged:
+
+```text
+coffee-builder-maven-plugin
+jakarta-ee-essentials
+```
+
+Includes:
+
+- Project Maven `groupId`
+- Maven invocation examples in README files
+- Archetype invocation examples
+- Maven plugin examples in JavaDoc or sample POMs
+- Tests that explicitly validate or use the Coffee Builder Maven coordinates
+- Integration-test POMs when they refer to Coffee Builder artifacts
+
+Do not change yet:
+
+- Java namespace (`org.eclipse.coffeebuilder` is already migrated)
+- Project version
+- GitHub URLs
+- Website URLs
+- `PRD_BASE_URL`
+- `DEV_BASE_URL`
+- `distributionManagement`
+- Repository structure
+- `configuration`
+- Unrelated sample application groupIds that merely identify generated/test projects
+
+Validation:
+
+For `coffee-builder-maven-plugin`:
+
+```bash
+mvn test
+```
+
+For `jakarta-ee-essentials`:
+
+```bash
+mvn test
+```
+
+Do not commit or push automatically.
+
 ## Future phases
 
-- Phase 2 — Maven coordinates
 - Phase 3 — Eclipse repository metadata
 - Phase 4 — Configuration URL strategy
 - Phase 5 — Jakarta EE Essentials migration
