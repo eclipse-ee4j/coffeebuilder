@@ -2,7 +2,6 @@ package org.eclipse.coffeebuilder.util;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.maven.plugin.logging.Log;
 
 import java.io.IOException;
@@ -18,8 +17,6 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.function.Function;
 
-import static org.eclipse.coffeebuilder.util.Constants.DEV_BASE_URL;
-import static org.eclipse.coffeebuilder.util.Constants.PRD_BASE_URL;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 
@@ -99,18 +96,6 @@ public final class HttpUtil {
      */
     public record Parameter(String name, String value) {
 
-    }
-
-    /**
-     * Constructs a full URL by prepending the appropriate base URL (development or production)
-     * to a given service path. The selection is based on the "devel" system property.
-     *
-     * @param serviceUrl The relative path of the service or resource (e.g., "/dependencies.json").
-     * @return The complete URL as a string.
-     */
-    public static String getUrl(String serviceUrl) {
-        return (BooleanUtils.toBoolean(System.getProperty("devel", "false"))
-                ? DEV_BASE_URL : PRD_BASE_URL) + serviceUrl;
     }
 
 }

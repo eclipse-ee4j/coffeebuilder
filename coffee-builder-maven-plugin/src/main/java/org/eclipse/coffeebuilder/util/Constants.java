@@ -153,25 +153,21 @@ public final class Constants {
      */
     public static final String FULL_NAME = "fullName";
 
-    // --- Remote Configuration URLs ---
+    // --- Configuration Resources ---
     /**
      * The base URL for development configuration files.
      */
-    public static final String DEV_BASE_URL = "https://raw.githubusercontent.com/coffee-builder/configuration/refs/heads/develop";
+    public static final String DEV_BASE_URL = "https://raw.githubusercontent.com/eclipse-ee4j/coffeebuilder/refs/heads/develop/configuration";
     /**
-     * The base URL for production configuration files.
-     */
-    public static final String PRD_BASE_URL = "https://coffee-builder.github.io/configuration";
-    /**
-     * The path for the remote dependencies configuration file.
+     * The path for the dependencies configuration file.
      */
     public static final String DEPENDENCIES_URL = "/dependencies.json";
     /**
-     * The path for the remote servers configuration file.
+     * The path for the servers configuration file.
      */
     public static final String SERVERS_URL = "/servers.json";
     /**
-     * The path for the remote specifications configuration file.
+     * The path for the specifications configuration file.
      */
     public static final String SPECIFICATIONS_URL = "/specifications.json";
     /**
@@ -179,19 +175,19 @@ public final class Constants {
      */
     public static final String CLASSES_DEFINITIONS = "/classes-definitions.json";
     /**
-     * The path for the remote Hibernate dialect configuration file.
+     * The path for the Hibernate dialect configuration file.
      */
     public static final String DIALECT_URL = "/hibernate-dialect.json";
     /**
-     * The path for the remote properties configuration file.
+     * The path for the properties configuration file.
      */
     public static final String PROPERTIES_URL = "/properties.json";
     /**
-     * The path for the remote XML schemas definition file.
+     * The path for the XML schemas definition file.
      */
     public static final String SCHEMAS_URL = "/schemas.json";
     /**
-     * The path for the remote OpenAPI Generator configuration file.
+     * The path for the OpenAPI Generator configuration file.
      */
     public static final String OPEN_API_GENERATOR_CONFIGURATION = "/openapi-generator-config.json";
 

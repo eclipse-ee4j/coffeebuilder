@@ -27,12 +27,11 @@ import java.util.Optional;
 
 import static org.eclipse.coffeebuilder.util.Constants.IS_ID;
 import static org.eclipse.coffeebuilder.util.Constants.TYPE;
-import static org.eclipse.coffeebuilder.util.HttpUtil.STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER;
 
 /**
  * A utility class providing helper methods for the Coffee Builder Maven Plugin.
  * <p>
- * This class offers static methods to fetch various configurations from remote JSON files,
+ * This class offers static methods to load various configurations from JSON files,
  * such as dependency details, server definitions, and class structures. It also provides
  * helpers for parsing entity definitions.
  */
@@ -46,96 +45,89 @@ public class CoffeeBuilderUtil {
     }
 
     /**
-     * Retrieves a specific dependency configuration from a remote repository.
+     * Retrieves a specific dependency configuration.
      *
      * @param log   The Maven logger for logging request details.
      * @param name The name of the dependency to retrieve (e.g., "maven-compiler-plugin").
      * @return An {@link Optional} containing the dependency's configuration as a {@link JsonObject},
      * or empty if not found.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getDependencyConfiguration(Log log, String name) throws IOException {
-        var response = HttpUtil.getContent(log, HttpUtil.getUrl(Constants.DEPENDENCIES_URL),
-            STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER);
+        var response = ConfigurationLoader.load(log, Constants.DEPENDENCIES_URL);
         return Optional.ofNullable(response.getJsonObject(name));
     }
 
     /**
-     * Retrieves a specific server definition from a remote repository.
+     * Retrieves a specific server definition.
      *
      * @param log   The Maven logger for logging request details.
      * @param name The name of the server to retrieve (e.g., "payara").
      * @return An {@link Optional} containing the server's definition as a {@link JsonObject},
      * or empty if not found.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getServerDefinition(Log log, String name) throws IOException {
-        var response = HttpUtil.getContent(log, HttpUtil.getUrl(Constants.SERVERS_URL),
-            STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER);
+        var response = ConfigurationLoader.load(log, Constants.SERVERS_URL);
         return Optional.ofNullable(response.getJsonObject(name));
     }
 
     /**
-     * Retrieves all Jakarta EE specification definitions from a remote repository.
+     * Retrieves all Jakarta EE specification definitions.
      *
      * @return An {@link Optional} containing the complete set of specification definitions.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getSpecificationsDefinitions(Log log) throws IOException {
         return Optional.ofNullable(
-            HttpUtil.getContent(log, HttpUtil.getUrl(Constants.SPECIFICATIONS_URL),
-                STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER)
+            ConfigurationLoader.load(log, Constants.SPECIFICATIONS_URL)
         );
     }
 
     /**
-     * Retrieves all class type definitions from a remote repository.
+     * Retrieves all class type definitions.
      *
      * @return An {@link Optional} containing the complete set of class definitions.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getClassesDefinitions(Log log) throws IOException {
         return Optional.ofNullable(
-            HttpUtil.getContent(log, HttpUtil.getUrl(Constants.CLASSES_DEFINITIONS),
-                STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER)
+            ConfigurationLoader.load(log, Constants.CLASSES_DEFINITIONS)
         );
     }
 
     /**
-     * Retrieves the OpenAPI generator configuration from a remote repository.
+     * Retrieves the OpenAPI generator configuration.
      *
      * @return An {@link Optional} containing the OpenAPI generator configuration.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getOpenApiGeneratorConfiguration(Log log) throws IOException {
         return Optional.ofNullable(
-            HttpUtil.getContent(log, HttpUtil.getUrl(Constants.OPEN_API_GENERATOR_CONFIGURATION),
-                STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER)
+            ConfigurationLoader.load(log, Constants.OPEN_API_GENERATOR_CONFIGURATION)
         );
     }
 
     /**
-     * Retrieves a specific set of properties configuration from a remote repository.
+     * Retrieves a specific set of properties configuration.
      *
      * @param name The name of the properties configuration to retrieve.
      * @return An {@link Optional} containing the properties as a {@link JsonArray}, or empty if not found.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonArray> getPropertiesConfiguration(Log log, String name) throws IOException {
-        var response = HttpUtil.getContent(log, HttpUtil.getUrl(Constants.PROPERTIES_URL),
-            STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER);
+        var response = ConfigurationLoader.load(log, Constants.PROPERTIES_URL);
         return Optional.ofNullable(response.getJsonArray(name));
     }
 
     /**
-     * Retrieves the complete dialect configuration for JDBC drivers from a remote repository.
+     * Retrieves the complete dialect configuration for JDBC drivers.
      *
      * @return An {@link Optional} containing the dialect configurations.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getDialectConfiguration(Log log) throws IOException {
-        var response = HttpUtil.getContent(log, HttpUtil.getUrl(Constants.DIALECT_URL),
-            STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER);
+        var response = ConfigurationLoader.load(log, Constants.DIALECT_URL);
         return Optional.ofNullable(response);
     }
 
@@ -145,11 +137,10 @@ public class CoffeeBuilderUtil {
      * @param jakartaEeVersion The version of Jakarta EE (e.g., "10.0.0").
      * @param name             The name of the schema to retrieve (e.g., "web-app").
      * @return An {@link Optional} containing the schema definition as a {@link JsonObject}, or empty if not found.
-     * @throws IOException if an I/O error occurs during the HTTP request.
+     * @throws IOException if an I/O error occurs while loading the configuration.
      */
     public static Optional<JsonObject> getSchema(Log log, String jakartaEeVersion, String name) throws IOException {
-        var response = HttpUtil.getContent(log, HttpUtil.getUrl(Constants.SCHEMAS_URL),
-            STRING_TO_JSON_OBJECT_RESPONSE_CONVERTER);
+        var response = ConfigurationLoader.load(log, Constants.SCHEMAS_URL);
         return Optional.ofNullable(response.getJsonObject(jakartaEeVersion).getJsonObject(name));
     }
 
