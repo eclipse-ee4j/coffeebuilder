@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.eclipse.coffeebuilder</groupId>
-    <artifactId>jakarta-ee-essentials</artifactId>
+    <artifactId>jakarta-ee-minimal-archetype</artifactId>
     <version>0.0.8-SNAPSHOT</version>
     <packaging>maven-archetype</packaging>
 
