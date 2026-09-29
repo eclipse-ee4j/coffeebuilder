@@ -157,9 +157,37 @@ mvn test
 
 Do not commit or push automatically.
 
-## Future phases
+## Phase 3 — Eclipse repository metadata
 
-- Phase 3 — Eclipse repository metadata
+Scope:
+- Root repository metadata
+- coffee-builder-maven-plugin metadata
+- jakarta-ee-essentials metadata
+
+Update:
+- Project URLs to eclipse-ee4j/coffeebuilder where appropriate
+- SCM URLs to eclipse-ee4j/coffeebuilder
+- Organization name/URL to Eclipse Foundation / project page where appropriate
+- Repository references in README files where appropriate
+
+Do not change yet:
+- distributionManagement
+- PRD_BASE_URL / DEV_BASE_URL
+- configuration publishing strategy
+- versions
+- artifactIds
+- license text or copyright headers
+- CI/CD
+- release automation
+
+Validation:
+- Maven builds must still pass
+- No stale repository URLs should remain in scoped files, except historical references in MIGRATION.md
+
+Do not commit or push automatically.
+
+## Future phases
+ 
 - Phase 4 — Configuration URL strategy
 - Phase 5 — Jakarta EE Essentials migration
 - Phase 6 — Monorepo parent/build structure

@@ -10,7 +10,7 @@
 
     <name>Coffee Builder Maven Plugin</name>
     <description>Maven plugin for incrementally adding Jakarta EE capabilities to an existing project.</description>
-    <url>https://coffee-builder.github.io/</url>
+    <url>https://projects.eclipse.org/projects/ee4j.coffeebuilder</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -24,8 +24,8 @@
         <developer>
             <name>Diego Silva Límaco</name>
             <email>diego.silva@apuntesdejava.com</email>
-            <organization>Coffee Builder</organization>
-            <organizationUrl>https://coffee-builder.github.io/</organizationUrl>
+            <organization>Eclipse Foundation</organization>
+            <organizationUrl>https://projects.eclipse.org/projects/ee4j.coffeebuilder</organizationUrl>
         </developer>
     </developers>
     <properties>
@@ -38,9 +38,9 @@
         <junit-jupiter.version>6.1.1</junit-jupiter.version>
     </properties>
     <scm>
-        <connection>scm:git:https://github.com/coffee-builder/coffee-builder-maven-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/coffee-builder/coffee-builder-maven-plugin.git</developerConnection>
-        <url>https://github.com/coffee-builder/coffee-builder-maven-plugin</url>
+        <connection>scm:git:https://github.com/eclipse-ee4j/coffeebuilder.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/eclipse-ee4j/coffeebuilder.git</developerConnection>
+        <url>https://github.com/eclipse-ee4j/coffeebuilder</url>
     </scm>
     <distributionManagement>
         <snapshotRepository>

@@ -13,7 +13,7 @@
     <description>
         Maven archetype for generating clean Jakarta EE projects with configurable platform version, profile and module type.
     </description>
-    <url>https://coffee-builder.github.io/</url>
+    <url>https://projects.eclipse.org/projects/ee4j.coffeebuilder</url>
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
@@ -25,8 +25,8 @@
             <id>diegosilva</id>
             <name>Diego Silva Límaco</name>
             <email>diego.silva@apuntesdejava.com</email>
-            <organization>Coffee Builder</organization>
-            <organizationUrl>https://coffee-builder.github.io/</organizationUrl>
+            <organization>Eclipse Foundation</organization>
+            <organizationUrl>https://projects.eclipse.org/projects/ee4j.coffeebuilder</organizationUrl>
             <roles>
                 <role>Founder</role>
                 <role>Developer</role>
@@ -41,13 +41,13 @@
     </properties>
     <scm>
         <connection>
-            scm:git:https://github.com/coffee-builder/jakarta-ee-essentials.git
+            scm:git:https://github.com/eclipse-ee4j/coffeebuilder.git
         </connection>
         <developerConnection>
-            scm:git:ssh://git@github.com/coffee-builder/jakarta-ee-essentials.git
+            scm:git:ssh://git@github.com/eclipse-ee4j/coffeebuilder.git
         </developerConnection>
         <url>
-            https://github.com/coffee-builder/jakarta-ee-essentials
+            https://github.com/eclipse-ee4j/coffeebuilder
         </url>
         <tag>HEAD</tag>
     </scm>
