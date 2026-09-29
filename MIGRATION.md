@@ -575,8 +575,88 @@ Do not commit or push automatically.
 
 ---
 
+## Phase 7 — Monorepo CI baseline
+
+**Status: COMPLETE**
+
+### Objective
+
+Replace the obsolete module-local CI/CD workflows with one repository-root CI workflow that validates the complete Maven reactor without performing deployment or release operations.
+
+### Branch strategy
+
+- `develop` is the initial official development branch.
+- CI runs for pull requests targeting `develop`.
+- CI runs for pushes to `develop`.
+- CI can also be started manually with `workflow_dispatch`.
+- `main` does not exist yet and will be created later for the first stable/incubating release.
+- No legacy default branch is used or referenced by the workflow.
+
+### Root workflow
+
+Created:
+
+```text
+.github/workflows/ci.yml
+```
+
+The workflow uses:
+
+- `ubuntu-latest`
+- Java 21
+- Eclipse Temurin
+- Maven dependency caching
+
+The complete monorepo is built from the repository root with:
+
+```bash
+mvn --batch-mode --no-transfer-progress verify
+```
+
+The root reactor validates:
+
+- `coffeebuilder-parent`
+- `coffee-builder-maven-plugin`
+- `jakarta-ee-minimal-archetype`
+
+### Obsolete workflows removed
+
+Removed:
+
+```text
+coffee-builder-maven-plugin/.github/workflows/maven-ci-cd.yml
+jakarta-ee-minimal-archetype/.github/workflows/maven-ci-cd.yml
+```
+
+These module-local workflows contained obsolete snapshot deployment, release, tagging, signing, credential, and branch behavior and were not appropriate for the monorepo baseline.
+
+### Explicit exclusions
+
+This phase does not add or perform:
+
+- Maven Central deployment
+- snapshot deployment
+- release creation
+- Git tagging
+- GPG signing
+- deployment credentials or Sonatype secrets
+- branch triggers other than `develop`
+- release or publishing preparation
+
+### Validation result
+
+- root workflow structure: validated
+- root Maven command: `mvn verify`
+- reactor result: BUILD SUCCESS
+- the parent, Maven plugin, and minimal archetype modules all completed successfully
+- no deployment or release behavior remains in the active workflow
+
+Do not commit or push automatically.
+
+---
+
 ## Future phases
 
-- Phase 7 — CI/CD and Eclipse release preparation
-- Phase 8 — Repository hygiene, legal metadata, line endings, and contributor documentation
-- Phase 9 — Documentation and JakartaOne readiness
+- Phase 8 — Maven publishing and Eclipse release preparation
+- Phase 9 — Repository hygiene, legal metadata, line endings, and contributor documentation
+- Phase 10 — Documentation and JakartaOne readiness
