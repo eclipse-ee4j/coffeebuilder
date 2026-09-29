@@ -13,7 +13,7 @@
     <artifactId>coffee-builder-maven-plugin</artifactId>
     <packaging>maven-plugin</packaging>
 
-    <name>Coffee Builder Maven Plugin</name>
+    <name>Eclipse Coffee Builder Maven Plugin</name>
     <description>Maven plugin for incrementally adding Jakarta EE capabilities to an existing project.</description>
     <prerequisites>
         <maven>${maven.version}</maven>
@@ -165,6 +165,22 @@
                 <filtering>false</filtering>
                 <includes>
                     <include>*.json</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>NOTICE.md</include>
                 </includes>
             </resource>
         </resources>

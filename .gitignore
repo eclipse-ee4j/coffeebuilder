@@ -1,0 +1,51 @@
+# Maven build output
+**/target/
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# IDE and editor metadata
+**/.idea/
+**/.vscode/
+**/.settings/
+**/*.iml
+**/*.swp
+**/*~
+**/.classpath
+**/.factorypath
+**/.project
+**/.apt_generated/
+**/.apt_generated_tests/
+
+# NetBeans
+**/nb-configuration.xml
+**/nbactions.xml
+
+# Eclipse and related tools
+**/.metadata/
+**/.loadpath
+**/.recommenders/
+**/.externalToolBuilders/
+**/*.launch
+**/.pydevproject
+**/.cproject
+**/.autotools
+**/.buildpath
+**/.target
+**/.tern-project
+**/.texlipse
+**/.springBeans
+**/.cache-main
+**/.scala_dependencies
+**/.worksheet
+
+# Logs and local agent output
+**/*.log
+**/.agent/
+**/*-REPORT.MD
+
+# Operating system files
+**/.DS_Store
+**/Thumbs.db

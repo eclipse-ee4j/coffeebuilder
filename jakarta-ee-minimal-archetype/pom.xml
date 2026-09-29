@@ -14,7 +14,7 @@
     <artifactId>jakarta-ee-minimal-archetype</artifactId>
     <packaging>maven-archetype</packaging>
 
-    <name>${project.groupId}:${project.artifactId}</name>
+    <name>Jakarta EE Minimal Archetype</name>
     <description>
         Maven archetype for generating clean Jakarta EE projects with configurable platform version, profile and module type.
     </description>
@@ -41,6 +41,27 @@
         </snapshotRepository>
     </distributionManagement>
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <targetPath>META-INF</targetPath>
+                <filtering>false</filtering>
+                <includes>
+                    <include>NOTICE.md</include>
+                </includes>
+            </resource>
+        </resources>
         <extensions>
             <extension>
                 <groupId>org.apache.maven.archetype</groupId>
