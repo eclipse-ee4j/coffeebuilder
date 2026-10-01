@@ -60,7 +60,6 @@ under the License.
             <directory>src/main/resources</directory>
             <includes>
                 <include>META-INF/beans.xml</include>
-                <include>META-INF/persistence.xml</include>
             </includes>
         </fileSet>
 

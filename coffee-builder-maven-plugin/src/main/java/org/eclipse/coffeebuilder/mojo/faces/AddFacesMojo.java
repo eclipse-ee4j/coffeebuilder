@@ -34,18 +34,17 @@ import java.io.IOException;
 
 /**
  * Mojo implementation for adding necessary Jakarta Faces configurations to a Maven project.
- * This includes adding a URL pattern for Faces requests, configuring the welcome file,
+ * This includes generating the annotated Faces configuration class, configuring the welcome file,
  * and ensuring required dependencies are included in the project.<br/><br/>
  * <p>
  * This Mojo performs the following tasks:<ul><li>
  * Checks and adds the necessary Jakarta Faces and CDI dependencies.</li>
- * <li>Configures and validates the Jakarta Faces servlet declaration in the project descriptor.</li>
+ * <li>Generates an annotated Jakarta Faces configuration class.</li>
  * <li> Updates the web application's welcome file configuration with the specified value.</li>
  * </ul>
  * Goal: add-faces
  * Configuration Parameters:<ul>
- * <li> <code>url-pattern</code>: Specifies the URL pattern to be used for Faces requests (default: "*.faces").</li>
- * <li> <code>welcome-file</code>: Specifies the welcome file name (default: "index.faces").</li>
+ * <li> <code>welcome-file</code>: Specifies the welcome file name (default: "index.xhtml").</li>
  * <li> <code>mavenProject</code>: Represents the Maven project being processed.</li>
  * <li> <code>mavenSession</code>: Provides the Maven execution session information.</li>
  * <li> <code>projectBuilder</code>: Helper to build Maven project instances.</li>

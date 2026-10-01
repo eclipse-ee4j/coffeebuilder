@@ -23,6 +23,7 @@ Configura la unidad de persistencia (JPA).
 - **`-Durl=<jdbc-url>`**: URL de conexión JDBC. (Por defecto: H2 in-memory)
 - **`-Duser=<usuario>`**: Usuario de base de datos.
 - **`-Dpassword=<clave>`**: Contraseña de base de datos.
+- **`-Dproperties=<nombre:valor,...>`**: Propiedades adicionales del Data Source como pares `nombre:valor` separados por comas.
 - **`-Ddeclare=<web|...>`**: Lugar donde declarar el recurso (Por defecto: `web`).
 
 ### `add-datasource`
@@ -66,6 +67,9 @@ Crea un nuevo template Facelet.
 
 ### `add-forms-from-entities`
 Genera formularios CRUD de JSF/PrimeFaces a partir de entidades.
+
+Primero se debe ejecutar `add-domain-models`. Los formularios y backing beans generados utilizan sus modelos de dominio e interfaces de repositorio.
+
 - **`-Dforms-file=<path>`**: Ruta al JSON de definición de formularios. (**Requerido**)
 - **`-Dentities-file=<path>`**: Ruta al JSON de definición de entidades. (**Requerido**)
  

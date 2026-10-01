@@ -97,7 +97,7 @@ class AddFormsFromEntitiesMojoTest {
     }
 
     @Test
-    @DisplayName("execute: should add forms from entities successfully")
+    @DisplayName("execute: should add forms when add-domain-models outputs already exist")
     void execute_ValidFiles_AddsForms() throws Exception {
         MavenProject fullProject = mock(MavenProject.class);
 
