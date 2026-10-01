@@ -27,6 +27,7 @@ Configures the persistence unit (JPA).
 - **`-Durl=<jdbc-url>`**: JDBC connection URL. (Default: H2 in-memory)
 - **`-Duser=<user>`**: Database user.
 - **`-Dpassword=<password>`**: Database password.
+- **`-Dproperties=<name:value,...>`**: Additional Data Source properties as comma-separated `name:value` pairs.
 - **`-Ddeclare=<web|...>`**: Location where the resource is declared. (Default: `web`)
 
 ### `add-datasource`
@@ -85,6 +86,8 @@ Creates a new Facelet template.
 ### `add-forms-from-entities`
 
 Generates Jakarta Faces/PrimeFaces CRUD forms from entities.
+
+Run `add-domain-models` first. The generated forms and backing beans reference its domain models and repository interfaces.
 
 - **`-Dforms-file=<path>`**: Path to the JSON form definition file. (**Required**)
 - **`-Dentities-file=<path>`**: Path to the JSON entity definition file. (**Required**)

@@ -99,8 +99,8 @@ public abstract class AddAbstractPersistenceMojo extends AbstractMojo {
     )
     protected Integer portNumber;
     /**
-     * A comma-separated list of additional properties for the data source.
-     * (e.g., "prop1=value1,prop2=value2").
+     * A comma-separated list of additional data source properties, with each name and value
+     * separated by a colon (for example, {@code "prop1:value1,prop2:value2"}).
      */
     @Parameter(
             property = PROPERTIES
