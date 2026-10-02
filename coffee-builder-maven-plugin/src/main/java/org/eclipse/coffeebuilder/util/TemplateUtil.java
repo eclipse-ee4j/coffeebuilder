@@ -19,8 +19,9 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import org.apache.maven.plugin.logging.Log;
 
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -114,10 +115,11 @@ public class TemplateUtil {
                                 String templateName) throws IOException {
         var template = configuration.getTemplate(templateName);
         Files.createDirectories(javaPath.getParent());
-        try (var writer = new FileWriter(javaPath.toFile())) {
+        try (var writer = new StringWriter()) {
             template.process(data, writer);
+            Files.writeString(javaPath, writer.toString(), StandardCharsets.UTF_8);
         } catch (TemplateException e) {
-            log.error(e.getMessage(), e);
+            throw new IOException("Error rendering template " + templateName, e);
         }
     }
 

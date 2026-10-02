@@ -16,7 +16,6 @@
 package org.eclipse.coffeebuilder.mojo.persistence;
 
 import org.eclipse.coffeebuilder.helper.JakartaEeHelper;
-import org.eclipse.coffeebuilder.util.CoffeeBuilderUtil;
 import org.eclipse.coffeebuilder.util.PomUtil;
 import org.apache.commons.lang3.Strings;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -114,11 +113,7 @@ public class AddPersistenceMojo extends AddAbstractPersistenceMojo {
                 jakartaEeHelper.addJakartaPersistenceDependency(fullProject, log, jakartaEeVersion);
             }
             if (Strings.CI.equals(jakartaEeVersion, JAKARTAEE_VERSION_10))
-                jakartaEeHelper.addPersistenceClassProvider(mavenProject, log);
-            CoffeeBuilderUtil.getJdbcConfiguration(log,url)
-                .ifPresent(definition
-                    -> jakartaEeHelper.checkDataDependencies(mavenProject, log, definition));
-
+                jakartaEeHelper.addPersistenceClassProvider(mavenProject, log, persistenceUnitName);
         } catch (IOException ex) {
             log.error(ex);
             throw new MojoExecutionException("Error resolving dependencies", ex);

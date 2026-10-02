@@ -198,7 +198,7 @@ public final class PomUtil {
      */
     public static void addDependency(MavenProject mavenProject,
                                      Log log,
-                                     String coordinates) {
+                                     String coordinates) throws MojoExecutionException {
         addDependency(mavenProject, log, coordinates, null);
     }
 
@@ -215,21 +215,23 @@ public final class PomUtil {
                                      Log log,
                                      String coordinates,
                                      String classifier
-    ) {
+    ) throws MojoExecutionException {
         try {
             var coordinatesSplit = StringUtils.split(coordinates, ":");
             var groupId = coordinatesSplit[0];
             var artifactId = coordinatesSplit[1];
             var version = coordinatesSplit.length == 3
                     ? coordinatesSplit[2] : findLatestDependencyVersion(log, groupId,
-                artifactId).orElseThrow();
+                artifactId).orElseThrow(() -> new MojoExecutionException(
+                    "No Maven version found for dependency " + coordinates));
             log.debug("adding dependency %s".formatted(coordinates));
             log.debug("groupId:%s | artifactId:%s | version:%s".formatted(groupId, artifactId,
                 version));
             addDependency(mavenProject, log, groupId, artifactId, version, null, classifier,
                 Collections.emptyList());
         } catch (IOException ex) {
-            log.error("Error getting last version of %s".formatted(coordinates), ex);
+            throw new MojoExecutionException(
+                "Unable to resolve a Maven version for dependency " + coordinates, ex);
         }
     }
 

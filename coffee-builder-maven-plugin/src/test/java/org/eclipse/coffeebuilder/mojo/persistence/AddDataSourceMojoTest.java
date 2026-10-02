@@ -7,6 +7,7 @@ import org.eclipse.coffeebuilder.util.MavenProjectUtil;
 import org.eclipse.coffeebuilder.util.PomUtil;
 import jakarta.json.Json;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -26,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,5 +117,60 @@ class AddDataSourceMojoTest {
         verify(jakartaEeHelperMock).checkDataDependencies(eq(fullProject), eq(mockLog), eq(jdbcConfig));
         verify(jakartaEeHelperMock).addDataSource(eq(fullProject), eq(mockLog), eq("web"), any(), any());
         pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(fullProject, mockLog));
+    }
+
+    @Test
+    @DisplayName("execute: should fail when the JDBC dependency cannot be added")
+    void execute_JdbcDependencyFailure_FailsGoal() throws Exception {
+        MavenProject fullProject = mock(MavenProject.class);
+        mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession,
+                projectBuilder,
+                mavenProject))
+            .thenReturn(fullProject);
+        var jdbcConfig = Json.createObjectBuilder()
+            .add("coordinates", "org.postgresql:postgresql")
+            .add("dataSourceClass", "org.postgresql.ds.PGPoolingDataSource")
+            .build();
+        coffeeBuilderUtilMockedStatic.when(() -> CoffeeBuilderUtil.getJdbcConfiguration(mockLog,
+                "jdbc:h2:mem:test"))
+            .thenReturn(Optional.of(jdbcConfig));
+        org.mockito.Mockito.doThrow(new MojoExecutionException("metadata resolution failed"))
+            .when(jakartaEeHelperMock).checkDataDependencies(fullProject, mockLog, jdbcConfig);
+
+        MojoExecutionException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            MojoExecutionException.class, mojo::execute);
+
+        org.junit.jupiter.api.Assertions.assertTrue(exception.getMessage().contains("metadata resolution failed"));
+        verify(jakartaEeHelperMock, never()).addDataSource(eq(fullProject), eq(mockLog), any(), any(), any());
+        pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(fullProject, mockLog), never());
+    }
+
+    @Test
+    @DisplayName("execute: should fail when class datasource generation fails")
+    void execute_ClassDatasourceRenderingFailure_FailsGoal() throws Exception {
+        MavenProject fullProject = mock(MavenProject.class);
+        mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession,
+                projectBuilder,
+                mavenProject))
+            .thenReturn(fullProject);
+        var jdbcConfig = Json.createObjectBuilder()
+            .add("coordinates", "com.h2database:h2")
+            .add("version", "2.4.240")
+            .add("dataSourceClass", "org.h2.jdbcx.JdbcDataSource")
+            .build();
+        coffeeBuilderUtilMockedStatic.when(() -> CoffeeBuilderUtil.getJdbcConfiguration(mockLog,
+                "jdbc:h2:mem:test"))
+            .thenReturn(Optional.of(jdbcConfig));
+        setField("declare", "class");
+        var renderingFailure = new java.io.IOException("FreeMarker rendering failed");
+        org.mockito.Mockito.doThrow(new MojoExecutionException("Error creating datasource", renderingFailure))
+            .when(jakartaEeHelperMock).addDataSource(eq(fullProject), eq(mockLog),
+                eq("class"), any(), any());
+
+        MojoExecutionException exception = org.junit.jupiter.api.Assertions.assertThrows(
+            MojoExecutionException.class, mojo::execute);
+
+        org.junit.jupiter.api.Assertions.assertSame(renderingFailure, exception.getCause());
+        pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(fullProject, mockLog), never());
     }
 }

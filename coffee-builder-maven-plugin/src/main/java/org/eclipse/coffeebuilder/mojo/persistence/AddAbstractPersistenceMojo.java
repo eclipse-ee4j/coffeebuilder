@@ -25,6 +25,7 @@ import jakarta.json.JsonValue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -238,15 +239,15 @@ public abstract class AddAbstractPersistenceMojo extends AbstractMojo {
      * @throws ProjectBuildingException if there is an error processing the project configuration.
      * @throws IOException              if an I/O error occurs.
      */
-    protected void addDataSourceConfiguration(Log log, JsonObject json) throws ProjectBuildingException, IOException {
+    protected void addDataSourceConfiguration(Log log, JsonObject json)
+        throws ProjectBuildingException, IOException, MojoExecutionException {
         var jakartaEeHelper = JakartaEeHelper.getInstance();
-        CoffeeBuilderUtil.getJdbcConfiguration(log,url)
-                .ifPresent(definition -> {
-                    jakartaEeHelper.checkDataDependencies(fullProject, log, definition);
-                    jakartaEeHelper.addDataSource(fullProject, log, declare,
-                            getDataSourceProperties(json, definition.getString("dataSourceClass")),
-                            profile);
-                });
+        var definition = CoffeeBuilderUtil.getJdbcConfiguration(log, url)
+            .orElseThrow(() -> new MojoExecutionException(
+                "No JDBC configuration found for URL " + url));
+        jakartaEeHelper.checkDataDependencies(fullProject, log, definition);
+        jakartaEeHelper.addDataSource(fullProject, log, declare,
+            getDataSourceProperties(json, definition.getString("dataSourceClass")), profile);
 
 //        CoffeeBuilderUtil.updateProjectConfiguration(mavenProject.getFile().toPath().getParent(), "jdbc", json);
     }

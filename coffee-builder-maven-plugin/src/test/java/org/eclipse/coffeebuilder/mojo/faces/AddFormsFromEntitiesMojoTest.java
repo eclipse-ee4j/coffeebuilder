@@ -6,6 +6,7 @@ import org.eclipse.coffeebuilder.util.MavenProjectUtil;
 import org.eclipse.coffeebuilder.util.PomUtil;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -127,5 +129,26 @@ class AddFormsFromEntitiesMojoTest {
 
         MojoExecutionException exception = assertThrows(MojoExecutionException.class, () -> mojo.execute());
         assertTrue(exception.getMessage().contains("File not found"));
+    }
+
+    @Test
+    @DisplayName("execute: should fail when PrimeFaces cannot be resolved")
+    void execute_PrimeFacesResolutionFailure_FailsGoal() throws Exception {
+        MavenProject fullProject = mock(MavenProject.class);
+        mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession,
+                projectBuilder,
+                mavenProject))
+            .thenReturn(fullProject);
+        when(jakartaEeHelperMock.hasNotPrimeFacesDependency(fullProject, mockLog)).thenReturn(true);
+        org.mockito.Mockito.doThrow(new java.io.IOException("TLS trust failure"))
+            .when(jakartaEeHelperMock).addPrimeFacesDependency(mavenProject, mockLog);
+
+        MojoFailureException exception = assertThrows(MojoFailureException.class, mojo::execute);
+
+        assertTrue(exception.getMessage().contains("TLS trust failure"));
+        verify(primeFacesHelperMock, never()).addFormsFromEntities(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any(),
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any());
+        pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(mavenProject, mockLog), never());
     }
 }

@@ -121,48 +121,38 @@ public class OpenApiGeneratorHelper {
         var apiResourcesPackage = MavenProjectUtil.getApiResourcesPackage(mavenProject);
         createIgnoreFilePath(mavenProject.getBasedir());
 
-        CoffeeBuilderUtil
-            .getOpenApiGeneratorConfiguration(log)
-            .map(config -> {
-                var configOptionsBuilder = Json.createObjectBuilder(config.getJsonObject("configOptions"))
-                    .add("modelPackage", apiResourcesPackage + ".model")
-                    .add("apiPackage", apiResourcesPackage)
-                    .add("openApiNullable", false)
-                    .add("generateJsonCreator", false);
-                return Json.createObjectBuilder()
-                    .add("generatorName", config.getString("generatorName"))
-                    .add("inputSpec", openApiPath.getFileName().toString())
-                    .add("ignoreFileOverride", "${project.basedir}/" + OPENAPI_GENERATOR_IGNORE_FILENAME)
-                    .add("templateDirectory", "${project.basedir}/" + openApiTemplatesPath.toString().replace("\\", "/"))
-                    .add("configOptions", configOptionsBuilder)
-                    .build();
-            }).ifPresent(configuration -> {
-                try {
-                    var executions = Json
-                        .createArrayBuilder()
-                        .add(Json.createObjectBuilder()
-                            .add(GOALS,
-                                Json.createArrayBuilder()
-                                    .add(
-                                        Json.createObjectBuilder()
-                                            .add(GOAL, "generate")
-                                    )
-                            ).add(CONFIGURATION, configuration))
-                        .build();
-                    CoffeeBuilderUtil.getDependencyConfiguration(log,Constants.OPENAPI_GENERATOR_MAVEN_PLUGIN)
-                        .ifPresent(dependency -> {
-                            PomUtil.addPlugin(mavenProject.getOriginalModel().getBuild(), log,
-                                    Constants.ORG_OPENAPITOOLS,
-                                    Constants.OPENAPI_GENERATOR_MAVEN_PLUGIN,
-                                    dependency.getString("version"),
-                                    null,
-                                    executions);
-                        });
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+        var config = CoffeeBuilderUtil.getOpenApiGeneratorConfiguration(log)
+            .orElseThrow(() -> new MojoExecutionException(
+                "OpenAPI Generator configuration not found"));
+        var configOptionsBuilder = Json.createObjectBuilder(config.getJsonObject("configOptions"))
+            .add("modelPackage", apiResourcesPackage + ".model")
+            .add("apiPackage", apiResourcesPackage)
+            .add("openApiNullable", false)
+            .add("generateJsonCreator", false);
+        var configuration = Json.createObjectBuilder()
+            .add("generatorName", config.getString("generatorName"))
+            .add("inputSpec", openApiPath.getFileName().toString())
+            .add("addCompileSourceRoot", true)
+            .add("ignoreFileOverride", "${project.basedir}/" + OPENAPI_GENERATOR_IGNORE_FILENAME)
+            .add("templateDirectory", "${project.basedir}/" + openApiTemplatesPath.toString().replace("\\", "/"))
+            .add("configOptions", configOptionsBuilder)
+            .build();
+        var executions = Json
+            .createArrayBuilder()
+            .add(Json.createObjectBuilder()
+                .add(GOALS,
+                    Json.createArrayBuilder()
+                        .add(Json.createObjectBuilder().add(GOAL, "generate"))
+                ).add(CONFIGURATION, configuration))
+            .build();
+        var dependency = CoffeeBuilderUtil.getDependencyConfiguration(
+                log, Constants.OPENAPI_GENERATOR_MAVEN_PLUGIN)
+            .orElseThrow(() -> new MojoExecutionException(
+                "OpenAPI Generator Maven plugin configuration not found"));
+        PomUtil.addPlugin(mavenProject.getOriginalModel().getBuild(), log,
+            Constants.ORG_OPENAPITOOLS,
+            Constants.OPENAPI_GENERATOR_MAVEN_PLUGIN,
+            dependency.getString("version"), null, executions);
 
     }
 

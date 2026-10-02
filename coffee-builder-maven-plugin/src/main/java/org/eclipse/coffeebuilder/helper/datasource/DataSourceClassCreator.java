@@ -22,10 +22,15 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.coffeebuilder.util.Constants.CLASS_NAME;
+import static org.eclipse.coffeebuilder.util.Constants.NAME;
 import static org.eclipse.coffeebuilder.util.Constants.PACKAGE_NAME;
+import static org.eclipse.coffeebuilder.util.Constants.PROPERTIES;
+import static org.eclipse.coffeebuilder.util.Constants.VALUE;
 
 /**
  * Responsible for creating the DataSource class.
@@ -63,7 +68,14 @@ public class DataSourceClassCreator extends DataSourceCreator {
         var packageDefinition = MavenProjectUtil.getProviderPackage(mavenProject);
         var className = "DataSourceProvider";
         var dataSourceClassPath = PathsUtil.getJavaPath(mavenProject, packageDefinition, className);
-        var properties = getDataSourceParameters();
+        var properties = new LinkedHashMap<>(getDataSourceParameters());
+        if (properties.get(PROPERTIES) instanceof List<?> additionalProperties) {
+            var annotationProperties = additionalProperties.stream()
+                .map(Map.class::cast)
+                .map(property -> "%s=%s".formatted(property.get(NAME), property.get(VALUE)))
+                .toList();
+            properties.put(PROPERTIES, annotationProperties);
+        }
         var annotationClasses = Map.of(
             "jakarta.annotation.sql.DataSourceDefinition", properties
         );

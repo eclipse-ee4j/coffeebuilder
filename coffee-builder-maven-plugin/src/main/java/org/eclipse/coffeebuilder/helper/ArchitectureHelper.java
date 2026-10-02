@@ -24,6 +24,7 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonValue;
 import org.apache.commons.lang3.Strings;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
@@ -65,8 +66,11 @@ public class ArchitectureHelper {
         return ArchitectureHelperHolder.INSTANCE;
     }
 
-    private static void addMapStructDependency(MavenProject mavenProject, Log log) throws IOException {
-        var version = PomUtil.findLatestDependencyVersion(log, ORG_MAPSTRUCT, MAPSTRUCT).orElseThrow();
+    private static void addMapStructDependency(MavenProject mavenProject, Log log)
+        throws IOException, MojoExecutionException {
+        var version = PomUtil.findLatestDependencyVersion(log, ORG_MAPSTRUCT, MAPSTRUCT)
+            .orElseThrow(() -> new MojoExecutionException(
+                "No Maven version found for dependency " + ORG_MAPSTRUCT + ":" + MAPSTRUCT));
         PomUtil.setProperty(mavenProject, log, "org.mapstruct.version", version);
         PomUtil.addDependency(mavenProject, log, ORG_MAPSTRUCT, MAPSTRUCT, "${org.mapstruct.version}");
 
@@ -101,7 +105,8 @@ public class ArchitectureHelper {
      * @param jakartaEeVersion Jakarta EE Version
      * @throws IOException if an I/O error occurs while modifying the POM.
      */
-    public void checkDependency(MavenProject mavenProject, Log log, String jakartaEeVersion) throws IOException {
+    public void checkDependency(MavenProject mavenProject, Log log, String jakartaEeVersion)
+        throws IOException, MojoExecutionException {
         log.debug("Checking org.mapstruct depending");
         if (!PomUtil.existsDependency(mavenProject, log, ORG_MAPSTRUCT, MAPSTRUCT)) {
             addMapStructDependency(mavenProject, log);
