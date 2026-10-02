@@ -36,7 +36,11 @@ public class ${className} {
 <#list fields as field>
     <#if (field.annotations??) && (field.annotations?size > 0)>
         <#list field.annotations as annotation,properties>
-    @${annotation}
+    @${annotation}<#if (properties??) && (properties?size > 0)>(
+            <#list properties as property,value>
+        ${property} = <#if value?is_string>"${value}"<#elseif value?is_number>${value?string("0")}</#if><#if property_has_next>,</#if>
+            </#list>
+    )</#if>
         </#list>
     </#if>
     private ${field.type} ${field.name};

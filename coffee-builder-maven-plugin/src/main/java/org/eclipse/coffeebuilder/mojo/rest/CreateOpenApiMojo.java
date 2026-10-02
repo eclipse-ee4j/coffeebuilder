@@ -33,7 +33,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Optional;
 
 /**
  * Mojo for generating server-side OpenAPI files.
@@ -129,21 +128,15 @@ public class CreateOpenApiMojo extends AbstractMojo {
 
             jakartaEeHelper.addMicroprofileOpenApiApiDependency(mavenProject, log);
             jakartaEeHelper.addJakartaValidationApiDependency(mavenProject, log, jakartaEeVersion);
-            jakartaEeHelper.addHelperGenerateSource(mavenProject, log);
 
-            Optional.ofNullable(openApiFileServer).ifPresent(openApiFile -> {
-                log.info("Creating open api server side with %s".formatted(openApiFile));
-                try {
-                    OpenApiGeneratorHelper.getInstance().processServer(mavenProject, openApiFile, log);
-                } catch (URISyntaxException | IOException | MojoExecutionException e) {
-                    throw new RuntimeException(new MojoFailureException(e));
-                }
-
-            });
+            if (openApiFileServer != null) {
+                log.info("Creating open api server side with %s".formatted(openApiFileServer));
+                OpenApiGeneratorHelper.getInstance().processServer(mavenProject, openApiFileServer, log);
+            }
             PomUtil.saveMavenProject(mavenProject, log);
 
-        } catch (IOException | ProjectBuildingException e) {
-            log.error("Error while adding Jackson dependency: %s".formatted(e.getMessage()));
+        } catch (IOException | ProjectBuildingException | URISyntaxException e) {
+            log.error("Error configuring OpenAPI generation: %s".formatted(e.getMessage()));
             throw new MojoFailureException(e);
         }
     }

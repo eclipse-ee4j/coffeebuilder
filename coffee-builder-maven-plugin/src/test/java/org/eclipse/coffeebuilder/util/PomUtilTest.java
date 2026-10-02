@@ -9,11 +9,13 @@ import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 public class PomUtilTest {
@@ -88,6 +90,27 @@ public class PomUtilTest {
         when(mockProject.getFile()).thenReturn(new File("/invalid/path/pom.xml"));
 
         assertThrows(MojoExecutionException.class, () -> PomUtil.saveMavenProject(mockProject, LOG));
+    }
+
+    @Test
+    void coordinateDependencyResolutionFailureIsExplicit() throws Exception {
+        MavenProject project = mock(MavenProject.class);
+        IOException tlsFailure = new IOException("PKIX path building failed");
+
+        try (var httpUtil = mockStatic(HttpUtil.class)) {
+            httpUtil.when(() -> HttpUtil.getContent(
+                    org.mockito.ArgumentMatchers.eq(LOG),
+                    org.mockito.ArgumentMatchers.eq("https://search.maven.org/solrsearch/select"),
+                    org.mockito.ArgumentMatchers.any(),
+                    org.mockito.ArgumentMatchers.any(HttpUtil.Parameter.class)))
+                .thenThrow(tlsFailure);
+
+            MojoExecutionException exception = assertThrows(MojoExecutionException.class,
+                () -> PomUtil.addDependency(project, LOG, "org.postgresql:postgresql"));
+
+            assertSame(tlsFailure, exception.getCause());
+            assertTrue(exception.getMessage().contains("org.postgresql:postgresql"));
+        }
     }
 
 }

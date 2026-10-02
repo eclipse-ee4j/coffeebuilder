@@ -38,8 +38,6 @@ import java.util.Optional;
 
 import static org.eclipse.coffeebuilder.util.Constants.CLASS_NAME;
 import static org.eclipse.coffeebuilder.util.Constants.FIELDS;
-import static org.eclipse.coffeebuilder.util.Constants.GOAL;
-import static org.eclipse.coffeebuilder.util.Constants.GOALS;
 import static org.eclipse.coffeebuilder.util.Constants.JAKARTAEE_VERSION_11;
 import static org.eclipse.coffeebuilder.util.Constants.JAKARTA_DATA;
 import static org.eclipse.coffeebuilder.util.Constants.JAKARTA_DATA_API;
@@ -57,6 +55,7 @@ import static org.eclipse.coffeebuilder.util.Constants.PACKAGE_NAME;
 import static org.eclipse.coffeebuilder.util.Constants.PRIMEFACES;
 import static org.eclipse.coffeebuilder.util.Constants.PROVIDED_SCOPE;
 import static org.eclipse.coffeebuilder.util.Constants.TYPE;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 
 /**
@@ -260,26 +259,24 @@ public final class JakartaEeHelper {
                               Log log,
                               String declare,
                               JsonObject json,
-                              String profile) {
+                              String profile) throws MojoExecutionException {
         log.debug("Datasource:%s".formatted(json));
-        DataSourceCreatorFactory
+        var dataSourceCreator = DataSourceCreatorFactory
             .getDataSourceCreator(mavenProject, log, declare, profile)
-            .ifPresent(dataSourceCreator -> {
-                try {
-                    dataSourceCreator
-                        .dataSourceParameters(json)
-                        .build();
-                } catch (IOException | MojoExecutionException e) {
-                    log.error("Error creating datasource", e);
-                    throw new RuntimeException(e);
-                }
-            });
+            .orElseThrow(() -> new MojoExecutionException(
+                "Unsupported datasource declaration strategy: " + declare));
+        try {
+            dataSourceCreator.dataSourceParameters(json).build();
+        } catch (IOException e) {
+            throw new MojoExecutionException(
+                "Error creating datasource with declaration strategy " + declare, e);
+        }
     }
 
     public void addDataSource(MavenProject mavenProject,
                               Log log,
                               String declare,
-                              JsonObject json ) {
+                              JsonObject json ) throws MojoExecutionException {
         addDataSource(mavenProject, log, declare, json, null);
     }
 
@@ -311,32 +308,32 @@ public final class JakartaEeHelper {
      * @param log          The Maven logger for output.
      * @param definition   A {@link JsonObject} containing dialect and JDBC driver coordinate information.
      */
-    public void checkDataDependencies(MavenProject mavenProject, Log log, JsonObject definition) {
-        PomUtil.getDependency(mavenProject, log, JAKARTA_ENTERPRISE, JAKARTA_ENTERPRISE_CDI_API).ifPresent(
-            artifact -> {
-                var version = artifact.getVersion();
-                log.debug("Jakarta CDI dependency found: " + version);
-                getSpecifications(log).entrySet().stream()
-                    .filter(entry -> {
-                        JsonObject specObject = entry.getValue().asJsonObject();
-                        return specObject.containsKey(JAKARTA_ENTERPRISE_CDI_API)
-                            && Strings.CS.equals(specObject.getString(JAKARTA_ENTERPRISE_CDI_API), version);
-                    })
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .ifPresent(jakartaEEVersion -> {
-                        log.debug("Jakarta EE version: %s".formatted(jakartaEEVersion));
-                        try {
-                            if (Strings.CS.equals(jakartaEEVersion, JAKARTAEE_VERSION_11)) {
-                                addJakartaDataDependency(mavenProject, log, jakartaEEVersion);
-                                addJakartaInjectDependencyManagement(mavenProject, log);
-                            }
-                            PomUtil.addDependency(mavenProject, log, definition.getString("coordinates"));
-                        } catch (MojoExecutionException e) {
-                            log.error("Error adding Jakarta dependency", e);
-                        }
-                    });
-            });
+    public void checkDataDependencies(MavenProject mavenProject, Log log, JsonObject definition)
+        throws MojoExecutionException {
+        var cdiDependency = PomUtil.getDependency(mavenProject, log,
+            JAKARTA_ENTERPRISE, JAKARTA_ENTERPRISE_CDI_API);
+        if (cdiDependency.isPresent()) {
+            var version = cdiDependency.orElseThrow().getVersion();
+            log.debug("Jakarta CDI dependency found: " + version);
+            var jakartaEeVersion = getSpecifications(log).entrySet().stream()
+                .filter(entry -> {
+                    JsonObject specObject = entry.getValue().asJsonObject();
+                    return specObject.containsKey(JAKARTA_ENTERPRISE_CDI_API)
+                        && Strings.CS.equals(specObject.getString(JAKARTA_ENTERPRISE_CDI_API), version);
+                })
+                .map(Map.Entry::getKey)
+                .findFirst();
+            if (jakartaEeVersion.filter(JAKARTAEE_VERSION_11::equals).isPresent()) {
+                log.debug("Jakarta EE version: " + JAKARTAEE_VERSION_11);
+                addJakartaDataDependency(mavenProject, log, JAKARTAEE_VERSION_11);
+                addJakartaInjectDependencyManagement(mavenProject, log);
+            }
+        }
+        var coordinates = definition.getString("coordinates");
+        if (definition.containsKey("version")) {
+            coordinates += ":" + definition.getString("version");
+        }
+        PomUtil.addDependency(mavenProject, log, coordinates);
     }
 
     /**
@@ -357,11 +354,14 @@ public final class JakartaEeHelper {
     /**
      * Creates a CDI producer class that provides an {@code EntityManager} instance.
      *
-     * @param mavenProject The Maven project where the class will be created.
-     * @param log          The Maven logger for output.
+     * @param mavenProject        The Maven project where the class will be created.
+     * @param log                 The Maven logger for output.
+     * @param persistenceUnitName The persistence unit injected by the generated provider.
      * @throws IOException if an I/O error occurs while creating the file.
      */
-    public void addPersistenceClassProvider(MavenProject mavenProject, Log log) throws IOException {
+    public void addPersistenceClassProvider(MavenProject mavenProject,
+                                            Log log,
+                                            String persistenceUnitName) throws IOException {
         var packageDefinition = MavenProjectUtil.getProviderPackage(mavenProject);
         var className = "PersistenceProvider";
         var persistenceProviderClassPath = PathsUtil.getJavaPath(mavenProject, packageDefinition, className);
@@ -373,7 +373,7 @@ public final class JakartaEeHelper {
             TYPE, "jakarta.persistence.EntityManager",
             "annotations", Map.of(
                 "jakarta.persistence.PersistenceContext", Map.of(
-                    "unitName", "example-pu"
+                    "unitName", persistenceUnitName
                 ),
                 "jakarta.enterprise.inject.Produces", Map.of()
             )
@@ -450,41 +450,6 @@ public final class JakartaEeHelper {
     }
 
     /**
-     * Configures the {@code build-helper-maven-plugin} to add a generated source directory.
-     *
-     * @param mavenProject The Maven project to modify.
-     * @param log          The Maven logger for output.
-     * @throws IOException If an I/O error occurs.
-     */
-    public void addHelperGenerateSource(MavenProject mavenProject, Log log) throws IOException {
-        var executions
-            = Json.createArrayBuilder()
-            .add(Json.createObjectBuilder()
-                    .add("id", "add-source")
-                    .add("phase",
-                        "generate-sources")
-                    .add(GOALS,
-                        Json.createArrayBuilder()
-                            .add(
-                                Json.createObjectBuilder().add(GOAL, "add-source")))
-                /*.add(CONFIGURATION,
-                    Json.createObjectBuilder()
-                        .add("sources",
-                            Json.createArrayBuilder()
-                                .add(Json.createObjectBuilder()
-                                    .add("source",
-                                        "${project.build.directory}/generated-sources/openapi"))
-                        )
-                )*/
-            ).build();
-        PomUtil
-            .findLatestPluginVersion(log, "org.codehaus.mojo", "build-helper-maven-plugin")
-            .ifPresent(
-                version -> PomUtil.addPlugin(mavenProject.getOriginalModel().getBuild(), log, "org.codehaus.mojo",
-                    "build-helper-maven-plugin", version, null, executions));
-    }
-
-    /**
      * Checks if the project does NOT have a dependency on PrimeFaces.
      *
      * @param mavenProject The Maven project to check.
@@ -501,8 +466,13 @@ public final class JakartaEeHelper {
      * @param mavenProject The Maven project to modify.
      * @param log          The Maven logger for output.
      */
-    public void addPrimeFacesDependency(MavenProject mavenProject, Log log) {
-        PomUtil.addDependency(mavenProject, log, "%s:%s".formatted(ORG_PRIMEFACES, PRIMEFACES), "jakarta");
+    public void addPrimeFacesDependency(MavenProject mavenProject, Log log)
+        throws IOException, MojoExecutionException {
+        var dependency = CoffeeBuilderUtil.getDependencyConfiguration(log, PRIMEFACES)
+            .orElseThrow(() -> new MojoExecutionException("PrimeFaces dependency configuration not found"));
+        PomUtil.addDependency(mavenProject, log,
+            dependency.getString("groupId"), dependency.getString("artifactId"),
+            dependency.getString("version"), null, "jakarta", emptyList());
     }
 
     /**

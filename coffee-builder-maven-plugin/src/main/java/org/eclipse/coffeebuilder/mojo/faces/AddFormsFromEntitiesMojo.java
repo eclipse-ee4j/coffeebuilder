@@ -138,7 +138,8 @@ public class AddFormsFromEntitiesMojo extends AbstractMojo {
         }
     }
 
-    private void checkDependency(Log log, MavenProject fullProject) {
+    private void checkDependency(Log log, MavenProject fullProject)
+        throws IOException, MojoExecutionException {
         log.debug("Checking PrimeFaces dependency");
         var jakartaEeUtil = JakartaEeHelper.getInstance();
         if (jakartaEeUtil.hasNotPrimeFacesDependency(fullProject, log))

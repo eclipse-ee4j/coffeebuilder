@@ -128,7 +128,7 @@ class AddPersistenceMojoTest {
 
         verify(jakartaEeHelperMock).addJakartaCdiDependency(mavenProject, mockLog, "10.0.0");
         verify(jakartaEeHelperMock).addJakartaPersistenceDependency(fullProject, mockLog, "10.0.0");
-        verify(jakartaEeHelperMock).addPersistenceClassProvider(mavenProject, mockLog);
+        verify(jakartaEeHelperMock).addPersistenceClassProvider(mavenProject, mockLog, "myPU");
 
         pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(fullProject, mockLog));
     }

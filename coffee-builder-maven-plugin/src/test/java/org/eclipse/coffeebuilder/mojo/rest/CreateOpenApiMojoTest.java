@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,8 +105,7 @@ class CreateOpenApiMojoTest {
 
         verify(jakartaEeHelperMock).addMicroprofileOpenApiApiDependency(mavenProject, mockLog);
         verify(jakartaEeHelperMock).addJakartaValidationApiDependency(mavenProject, mockLog, "10.0.0");
-        verify(jakartaEeHelperMock).addHelperGenerateSource(mavenProject, mockLog);
-        
+
         verify(openApiGeneratorHelperMock).processServer(mavenProject, tempFile, mockLog);
 
         pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(mavenProject, mockLog));
@@ -123,5 +123,26 @@ class CreateOpenApiMojoTest {
 
         MojoExecutionException exception = assertThrows(MojoExecutionException.class, () -> mojo.execute());
         assertTrue(exception.getMessage().contains("Jakarta EE dependency not found"));
+    }
+
+    @Test
+    @DisplayName("execute: should propagate incomplete OpenAPI plugin configuration")
+    void execute_IncompleteGeneratorConfiguration_FailsGoal() throws Exception {
+        MavenProject fullProject = mock(MavenProject.class);
+        mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession,
+                projectBuilder,
+                mavenProject))
+            .thenReturn(fullProject);
+        pomUtilMockedStatic.when(() -> PomUtil.getJakartaEeCurrentVersion(fullProject, mockLog))
+            .thenReturn(Optional.of("11.0.0"));
+        var configurationFailure = new MojoExecutionException(
+            "OpenAPI Generator Maven plugin configuration not found");
+        org.mockito.Mockito.doThrow(configurationFailure)
+            .when(openApiGeneratorHelperMock).processServer(mavenProject, tempFile, mockLog);
+
+        var thrown = assertThrows(MojoExecutionException.class, mojo::execute);
+
+        org.junit.jupiter.api.Assertions.assertSame(configurationFailure, thrown);
+        pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(mavenProject, mockLog), never());
     }
 }
