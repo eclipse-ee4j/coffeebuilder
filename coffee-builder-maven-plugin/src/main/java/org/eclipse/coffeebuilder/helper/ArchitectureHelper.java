@@ -144,21 +144,22 @@ public class ArchitectureHelper {
             var modelPath = PathsUtil.getJavaPath(mavenProject, packageDefinition, modelName);
             var classDefinitionHelper = ClassDefinitionHelper.getInstance(log);
             var fieldsJson = modelDefinition.getJsonObject(FIELDS);
+            Collection<String> importsList = new LinkedHashSet<>(
+                classDefinitionHelper.importsFromFieldsClassesType(fieldsJson));
             var fields = classDefinitionHelper.createFieldsDefinitions(fieldsJson,
                 (fieldName, field, annotations) -> {
                     var type = field.getString(TYPE);
-                    if (field.getBoolean("list", false)) {
-
-                    }
                     if (Strings.CS.equals(type, "enum")) {
-
+                        type = JakartaPersistenceHelper.enumClassName(modelName + "Entity", fieldName);
+                        importsList.add(MavenProjectUtil.getEnumsPackage(mavenProject) + "." + type);
                     }
-
+                    if (field.getBoolean("list", false)) {
+                        importsList.add("java.util.List");
+                        return "List<%s>".formatted(type);
+                    }
                     return type;
                 });
             log.debug("fields:" + fields);
-            Collection<String> importsList = new LinkedHashSet<>(
-                classDefinitionHelper.importsFromFieldsClassesType(fieldsJson));
             Map<String, Object> fieldsMap = Map.ofEntries(
                 Map.entry(PACKAGE_NAME, packageDefinition),
                 Map.entry(CLASS_NAME, modelName),
