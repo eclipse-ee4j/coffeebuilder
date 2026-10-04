@@ -84,6 +84,19 @@ class PrimeFacesHelperTest {
         PrimeFacesHelper.getInstance().addFormsFromEntities(createProject(), mock(Log.class), forms, entities);
 
         var xhtml = Files.readString(tempDirectory.resolve("src/main/webapp/IssueList.xhtml"));
+        var normalizedXhtml = xhtml.replaceAll("\\s+", " ");
+        assertTrue(normalizedXhtml.contains(
+            "<p:column selectionMode=\"multiple\" exportable=\"false\" ariaHeaderText=\"Selection\" />"));
+        assertTrue(normalizedXhtml.contains(
+            "<p:ajax event=\"rowSelect\" update=\":issueForm:delete-issues-button\" />"));
+        assertTrue(normalizedXhtml.contains(
+            "<p:ajax event=\"rowUnselect\" update=\":issueForm:delete-issues-button\" />"));
+        assertTrue(normalizedXhtml.contains(
+            "<p:ajax event=\"rowSelectCheckbox\" update=\":issueForm:delete-issues-button\" />"));
+        assertTrue(normalizedXhtml.contains(
+            "<p:ajax event=\"rowUnselectCheckbox\" update=\":issueForm:delete-issues-button\" />"));
+        assertTrue(normalizedXhtml.contains(
+            "<p:ajax event=\"toggleSelect\" update=\":issueForm:delete-issues-button\" />"));
         assertTrue(xhtml.contains("<p:inputText id=\"title\""));
         assertTrue(xhtml.contains("<p:inputTextarea id=\"description\""));
         assertTrue(xhtml.contains("<p:inputNumber id=\"estimate\""));

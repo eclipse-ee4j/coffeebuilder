@@ -77,6 +77,8 @@
                     <p:ajax event="rowSelectCheckbox" update=":${formId}:delete-${instanceModelName}s-button" />
                     <p:ajax event="rowUnselectCheckbox" update=":${formId}:delete-${instanceModelName}s-button" />
                     <p:ajax event="toggleSelect" update=":${formId}:delete-${instanceModelName}s-button" />
+
+                    <p:column selectionMode="multiple" exportable="false" ariaHeaderText="Selection" />
                     
                     <#list fields as field>
                         <#assign headerText="{bundle.${modelName}_${field.name}}"/>
