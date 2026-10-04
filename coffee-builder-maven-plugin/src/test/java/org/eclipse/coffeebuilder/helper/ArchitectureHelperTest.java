@@ -28,12 +28,15 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 import java.io.StringReader;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -93,6 +96,29 @@ class ArchitectureHelperTest {
         assertGeneratedSourcesCompile();
     }
 
+    @Test
+    void generatedPersistentIdentitySupportsManyToOneSelectMatching() throws Exception {
+        var project = createProject();
+        var log = mock(Log.class);
+        var definitions = readJson("""
+            {
+              "Project": {
+                "fields": {
+                  "id": {"type": "UUID", "isId": true},
+                  "name": {"type": "String"}
+                }
+              }
+            }
+            """);
+
+        ArchitectureHelper.getInstance().createDtos(project, log, definitions);
+
+        var projectSource = Files.readString(javaSource("com.example.tracker.domain.model", "Project"));
+        assertTrue(projectSource.contains("return id != null && id.equals(that.id);"));
+        assertTrue(projectSource.contains("return getClass().hashCode();"));
+        assertPersistentIdentitySemantics(assertGeneratedSourcesCompile());
+    }
+
     private MavenProject createProject() {
         var model = new Model();
         model.setGroupId("com.example");
@@ -120,7 +146,7 @@ class ArchitectureHelperTest {
             .resolve(className + ".java");
     }
 
-    private void assertGeneratedSourcesCompile() throws Exception {
+    private Path assertGeneratedSourcesCompile() throws Exception {
         var compiler = ToolProvider.getSystemJavaCompiler();
         assertNotNull(compiler, "Tests must run with a JDK");
         var diagnostics = new DiagnosticCollector<JavaFileObject>();
@@ -136,6 +162,43 @@ class ArchitectureHelperTest {
             var compiled = compiler.getTask(null, fileManager, diagnostics,
                 List.of("-d", output.toString()), null, compilationUnits).call();
             assertTrue(compiled, () -> "Generated sources did not compile: " + diagnostics.getDiagnostics());
+        }
+        return output;
+    }
+
+    private void assertPersistentIdentitySemantics(Path compiledClasses) throws Exception {
+        try (var classLoader = new URLClassLoader(new java.net.URL[]{compiledClasses.toUri().toURL()})) {
+            var projectClass = classLoader.loadClass("com.example.tracker.domain.model.Project");
+            var constructor = projectClass.getConstructor();
+            var setId = projectClass.getMethod("setId", UUID.class);
+
+            var transientProject = constructor.newInstance();
+            assertEquals(transientProject, transientProject, "the same instance must be equal to itself");
+
+            var otherTransientProject = constructor.newInstance();
+            assertNotEquals(transientProject, otherTransientProject,
+                "two transient instances must not be equal merely because both ids are null");
+
+            var stableHashCode = transientProject.hashCode();
+            var projectId = UUID.randomUUID();
+            setId.invoke(transientProject, projectId);
+            assertEquals(stableHashCode, transientProject.hashCode(),
+                "hashCode must not change when a generated id is assigned");
+
+            var equivalentProject = constructor.newInstance();
+            setId.invoke(equivalentProject, projectId);
+            assertEquals(transientProject, equivalentProject,
+                "persisted instances with the same id must be equal");
+            assertEquals(transientProject.hashCode(), equivalentProject.hashCode());
+
+            var differentProject = constructor.newInstance();
+            setId.invoke(differentProject, UUID.randomUUID());
+            assertNotEquals(transientProject, differentProject,
+                "persisted instances with different ids must not be equal");
+
+            var cachedProjects = List.of(equivalentProject);
+            assertTrue(cachedProjects.contains(transientProject),
+                "a current ManyToOne value must match an equivalent cached select item by id");
         }
     }
 }

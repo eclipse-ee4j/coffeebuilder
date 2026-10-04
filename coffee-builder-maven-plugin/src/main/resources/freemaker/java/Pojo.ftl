@@ -26,4 +26,23 @@ public class ${className} {
     </#if>
 </#list>
 </#if>
+
+<#if idName??>
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        ${className} that = (${className}) other;
+        return ${idName} != null && ${idName}.equals(that.${idName});
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+</#if>
 }
