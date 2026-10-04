@@ -23,6 +23,7 @@
         <#assign bundleYes="{bundle.yes}"/>
         <#assign bundleNo="{bundle.no}"/>
         <#assign bundleCancel="{bundle.cancel}"/>
+        <#assign nullValue="{null}"/>
         <#assign formId="${instanceModelName}Form" />
         <p:card>
             <h:form id="${formId}">
@@ -79,7 +80,11 @@
                     
                     <#list fields as field>
                         <#assign headerText="{bundle.${modelName}_${field.name}}"/>
-                        <#assign columnValue="{${instanceModelName}.${field.name}}" />
+                        <#if field.manyToOne>
+                            <#assign columnValue="{${instanceModelName}.${field.name}.${field.displayField}}" />
+                        <#else>
+                            <#assign columnValue="{${instanceModelName}.${field.name}}" />
+                        </#if>
                     <p:column headerText="#${headerText}" >
                         #${columnValue}
                     </p:column>
@@ -129,9 +134,44 @@
                             <div class="field">
                                 <p:outputLabel for="${field.name}">#${headerText}</p:outputLabel>
 
-                                <#switch field.type >
-                                    <#on "LocalDate">
+                                <#switch field.component>
+                                    <#case "textarea">
+                                <p:inputTextarea id="${field.name}" value="#${columnValue}" autoResize="true" />
+                                        <#break>
+                                    <#case "inputNumber">
+                                <p:inputNumber id="${field.name}" value="#${columnValue}" ${readOnlyValue} />
+                                        <#break>
+                                    <#case "datePicker">
+                                        <#if field.type == "LocalDateTime">
+                                <p:datePicker id="${field.name}" value="#${columnValue}" pattern="yyyy-MM-dd HH:mm" showIcon="true" showTime="true" />
+                                        <#else>
                                 <p:datePicker  id="${field.name}" value="#${columnValue}" pattern="yyyy-MM-dd" showIcon="true" />
+                                        </#if>
+                                        <#break>
+                                    <#case "selectOneMenu">
+                                        <#if field.manyToOne>
+                                            <#assign option="${field.relatedInstance}Option" />
+                                            <#assign optionsValue="{${managedBeanName}.${field.relatedOptions}}" />
+                                            <#assign converterValue="{${managedBeanName}.${field.converterProperty}}" />
+                                            <#assign itemValue="{${option}}" />
+                                            <#assign itemLabel="{${option}.${field.displayField}}" />
+                                <p:selectOneMenu id="${field.name}" value="#${columnValue}" converter="#${converterValue}">
+                                    <f:selectItem itemLabel="Select..." itemValue="#${nullValue}" noSelectionOption="true" />
+                                    <f:selectItems value="#${optionsValue}" var="${option}" itemValue="#${itemValue}" itemLabel="#${itemLabel}" />
+                                </p:selectOneMenu>
+                                        <#else>
+                                            <#assign enumValues="{${managedBeanName}.${field.valuesProperty}}" />
+                                            <#assign enumOption="${field.name}Option" />
+                                            <#assign enumItem="{${enumOption}}" />
+                                <p:selectOneMenu id="${field.name}" value="#${columnValue}">
+                                    <f:selectItem itemLabel="Select..." itemValue="#${nullValue}" noSelectionOption="true" />
+                                    <f:selectItems value="#${enumValues}" var="${enumOption}" itemValue="#${enumItem}" itemLabel="#${enumItem}" />
+                                </p:selectOneMenu>
+                                        </#if>
+                                        <#break>
+                                    <#case "chips">
+                                <p:chips id="${field.name}" value="#${columnValue}" addOnBlur="true" />
+                                        <#break>
                                     <#default>
                                 <p:inputText id="${field.name}" value="#${columnValue}" ${readOnlyValue} />
                                 </#switch>

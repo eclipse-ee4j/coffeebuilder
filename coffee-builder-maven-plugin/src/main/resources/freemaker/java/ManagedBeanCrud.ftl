@@ -14,6 +14,9 @@ import ${importItem};
 
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.ConverterException;
 import org.primefaces.PrimeFaces;
 
 import jakarta.annotation.PostConstruct;
@@ -31,6 +34,14 @@ public class ${className} implements Serializable{
     @Inject
     private ${serviceClassName} ${serviceInstanceName};
 
+<#list relations as relation>
+    @Inject
+    private ${relation.relatedType}Repository ${relation.relatedInstance}Repository;
+
+    private List<${relation.relatedType}> ${relation.relatedOptions};
+
+</#list>
+
     private ${modelName} ${currentModel};
 
     private List<${modelName}> ${selectedModels};
@@ -38,6 +49,9 @@ public class ${className} implements Serializable{
     @PostConstruct
     public void init() {
         this.${selectedModels} = new ArrayList<>();
+<#list relations as relation>
+        this.${relation.relatedOptions} = ${relation.relatedInstance}Repository.findAll();
+</#list>
     }
 
     public ${modelName} getCurrent${modelName}() {
@@ -57,8 +71,9 @@ public class ${className} implements Serializable{
     }
 
     public void save${modelName}(){
-        if (${currentModel}.get${idNameCap}() == null){
-            ${serviceInstanceName}.save(${currentModel});
+        boolean newModel = ${currentModel}.get${idNameCap}() == null;
+        ${currentModel} = ${serviceInstanceName}.save(${currentModel});
+        if (newModel){
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("${modelName} Added"));
         }else{
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("${modelName} Updated"));
@@ -66,6 +81,41 @@ public class ${className} implements Serializable{
         PrimeFaces.current().executeScript("PF('manage${modelName}Dialog').hide()");
         PrimeFaces.current().ajax().update("${formId}:messages", "${formId}:dt-${instanceModelName}s");
     }
+
+<#list enumFields as field>
+    public ${field.enumType}[] get${field.valuesProperty?cap_first}() {
+        return ${field.enumType}.values();
+    }
+
+</#list>
+<#list relations as relation>
+    public List<${relation.relatedType}> get${relation.relatedOptions?cap_first}() {
+        return ${relation.relatedOptions};
+    }
+
+    public Converter<${relation.relatedType}> get${relation.converterProperty?cap_first}() {
+        return new Converter<>() {
+            @Override
+            public ${relation.relatedType} getAsObject(FacesContext context, UIComponent component, String value) {
+                if (value == null || value.isBlank()) {
+                    return null;
+                }
+                return ${relation.relatedOptions}.stream()
+                    .filter(option -> option.get${relation.relatedId?cap_first}() != null)
+                    .filter(option -> option.get${relation.relatedId?cap_first}().toString().equals(value))
+                    .findFirst()
+                    .orElseThrow(() -> new ConverterException("Unknown ${relation.relatedType} id: " + value));
+            }
+
+            @Override
+            public String getAsString(FacesContext context, UIComponent component, ${relation.relatedType} value) {
+                return value == null || value.get${relation.relatedId?cap_first}() == null
+                    ? "" : value.get${relation.relatedId?cap_first}().toString();
+            }
+        };
+    }
+
+</#list>
 
     public List<${modelName}> getSelected${modelName}s() {
         return ${selectedModels};

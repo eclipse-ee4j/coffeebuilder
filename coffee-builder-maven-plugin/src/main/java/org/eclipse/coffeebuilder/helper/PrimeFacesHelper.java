@@ -37,9 +37,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -58,6 +60,13 @@ import static org.eclipse.coffeebuilder.util.Constants.TYPE;
  * generate files from templates, and manipulate XML documents.
  */
 public class PrimeFacesHelper extends JakartaFacesHelper {
+
+    private static final Set<String> SUPPORTED_COMPONENTS = Set.of(
+        "inputText", "textarea", "inputNumber", "datePicker", "selectOneMenu");
+
+    private static final Set<String> NUMERIC_TYPES = Set.of(
+        "byte", "short", "int", "long", "float", "double",
+        "Byte", "Short", "Integer", "Long", "Float", "Double", "BigInteger", "BigDecimal");
 
     /**
      * PrimeFaces XML namespace for the "p" prefix.
@@ -107,16 +116,10 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
 
         var properties = getMessagesBundle(mavenProject);
 
-        formsJson.entrySet()
-            .stream()
-            .filter(entryFilter)
-            .forEach(entry -> createFormFromEntity(mavenProject,
-                log,
-                entry,
-                properties,
-                entitiesJson,
-                jakartaEeHelper,
-                webAppPath));
+        for (var entry : formsJson.entrySet().stream().filter(entryFilter).toList()) {
+            createFormFromEntity(mavenProject, log, entry, properties, entitiesJson,
+                jakartaEeHelper, webAppPath);
+        }
 
         saveMessagesBundle(mavenProject, log, properties);
 
@@ -128,22 +131,25 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
                                       Properties properties,
                                       JsonObject entitiesJson,
                                       JakartaEeHelper jakartaEeHelper,
-                                      Path webAppPath) {
+                                      Path webAppPath) throws IOException {
         var formName = entry.getKey();
         var formDescription = entry.getValue().asJsonObject();
         createMessagesBundle(log, formDescription, properties);
-        try {
-            var base = formDescription.getString("base", "/");
-            var pageName = StringsUtil.removeCharacterRoot(base + formName);
-            var entityName = formDescription.getString(ENTITY);
-            var entityDescription = entitiesJson.getJsonObject(entityName);
-            var fieldIdDefinition = getFieldIdDefinition(entityDescription);
-            jakartaEeHelper.createDomain(mavenProject, entityName, entityDescription);
-            createManagedBean(mavenProject, log, pageName, entityName, fieldIdDefinition);
-            createForm(log, webAppPath, formName, pageName, formDescription, entityDescription, fieldIdDefinition);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        var base = formDescription.getString("base", "/");
+        var pageName = StringsUtil.removeCharacterRoot(base + formName);
+        var entityName = formDescription.getString(ENTITY);
+        var entityDescription = entitiesJson.getJsonObject(entityName);
+        if (entityDescription == null) {
+            throw new IOException("Entity definition not found: " + entityName);
         }
+        var fieldIdDefinition = getFieldIdDefinition(entityDescription);
+        var fields = createFieldDefinitions(entityName, formDescription, entityDescription, entitiesJson);
+        var relations = createRelationDefinitions(fields);
+        var enumFields = fields.stream().filter(field -> Boolean.TRUE.equals(field.get("enum"))).toList();
+        jakartaEeHelper.createDomain(mavenProject, entityName, entityDescription);
+        createManagedBean(mavenProject, log, pageName, entityName, fieldIdDefinition, relations, enumFields);
+        createForm(log, webAppPath, formName, pageName, formDescription, entityDescription,
+            fieldIdDefinition, fields, relations);
     }
 
     private void saveMessagesBundle(MavenProject mavenProject, Log log, Properties properties) throws IOException {
@@ -192,20 +198,31 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
                                   Log log,
                                   String pageName,
                                   String entityName,
-                                  Map<String, String> fieldIdDefinition) throws IOException {
+                                  Map<String, String> fieldIdDefinition,
+                                  List<Map<String, Object>> relations,
+                                  List<Map<String, Object>> enumFields) throws IOException {
         var packageDefinition = MavenProjectUtil.getFacesPackage(mavenProject);
         var className = StringsUtil.toPascalCase(pageName) + "Bean";
         var managedBeanPath = PathsUtil.getJavaPath(mavenProject, packageDefinition, className);
-        List<String> importsList = List.of(
+        Set<String> importsList = new LinkedHashSet<>(List.of(
             "%s.%sRepository".formatted(MavenProjectUtil.getModelRepositoryPackage(mavenProject), entityName),
             "%s.%s".formatted(MavenProjectUtil.getModelPackage(mavenProject), entityName)
-        );
+        ));
+        relations.forEach(relation -> {
+            var type = relation.get("type");
+            importsList.add("%s.%sRepository".formatted(MavenProjectUtil.getModelRepositoryPackage(mavenProject), type));
+            importsList.add("%s.%s".formatted(MavenProjectUtil.getModelPackage(mavenProject), type));
+        });
+        enumFields.forEach(field -> importsList.add(
+            "%s.%s".formatted(MavenProjectUtil.getEnumsPackage(mavenProject), field.get("enumType"))));
         Map<String, Object> fieldsMap = new LinkedHashMap<>(Map.ofEntries(
             Map.entry(PACKAGE_NAME, packageDefinition),
             Map.entry(MODEL_NAME, entityName),
             Map.entry(CLASS_NAME, className),
             Map.entry("instanceModelName", StringUtils.uncapitalize(entityName)),
-            Map.entry("importsList", importsList)
+            Map.entry("importsList", importsList),
+            Map.entry("relations", relations),
+            Map.entry("enumFields", enumFields)
         ));
         fieldsMap.putAll(fieldIdDefinition);
 
@@ -235,7 +252,9 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
                             String pageName,
                             JsonObject formDescription,
                             JsonObject entityDescription,
-                            Map<String, String> fieldIdDefinition) throws IOException {
+                            Map<String, String> fieldIdDefinition,
+                            List<Map<String, Object>> fields,
+                            List<Map<String, Object>> relations) throws IOException {
         var pagePath = webAppPath.resolve(pageName + ".xhtml");
         var title = formDescription.getString("title", formName);
         var templateDesc = formDescription.getJsonObject("template");
@@ -250,7 +269,9 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
             entityDescription,
             entityName,
             title,
-            fieldIdDefinition);
+            fieldIdDefinition,
+            fields,
+            relations);
         XmlUtil.getInstance().saveDocument(pageXhtml, log, pagePath);
     }
 
@@ -264,21 +285,12 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
                                                 JsonObject entityDefinition,
                                                 String entityName,
                                                 String title,
-                                                Map<String, String> fieldIdDefinition)
+                                                Map<String, String> fieldIdDefinition,
+                                                List<Map<String, Object>> fields,
+                                                List<Map<String, Object>> relations)
         throws IOException {
         String templateFacelet = templateDesc.getString("facelet");
         String define = templateDesc.getString("define");
-
-        var fields = entityDefinition.getJsonObject(FIELDS)
-            .entrySet()
-            .stream()
-            .map(entry -> {
-                var fieldDefinition = entry.getValue().asJsonObject();
-                return Map.ofEntries(
-                    Map.entry("name", entry.getKey()),
-                    Map.entry("type", fieldDefinition.getString(TYPE))
-                );
-            }).toList();
 
         Map<String, Object> fieldsMap = new LinkedHashMap<>(Map.of(
             "define", define,
@@ -286,7 +298,8 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
             "instanceModelName", StringUtils.uncapitalize(entityName),
             MODEL_NAME, entityName,
             "fields", fields,
-            "title", title
+            "title", title,
+            "relations", relations
         ));
         fieldsMap.putAll(fieldIdDefinition);
 
@@ -327,6 +340,153 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
             case "LocalDate" -> "datePicker";
             default -> "inputText";
         };
+    }
+
+    private List<Map<String, Object>> createFieldDefinitions(String entityName,
+                                                              JsonObject formDescription,
+                                                              JsonObject entityDescription,
+                                                              JsonObject entitiesJson) throws IOException {
+        var formFields = formDescription.getJsonObject(FIELDS);
+        if (formFields == null) {
+            throw new IOException("Form fields not found for entity " + entityName);
+        }
+        var entityFields = entityDescription.getJsonObject(FIELDS);
+        var result = new java.util.ArrayList<Map<String, Object>>();
+        for (var entry : formFields.entrySet()) {
+            var fieldName = entry.getKey();
+            var entityField = entityFields.getJsonObject(fieldName);
+            if (entityField == null) {
+                throw new IOException("Field %s is not defined by entity %s".formatted(fieldName, entityName));
+            }
+            var presentation = entry.getValue().asJsonObject();
+            var type = entityField.getString(TYPE);
+            var list = entityField.getBoolean("list", false);
+            var enumField = "enum".equals(type);
+            var manyToOne = isManyToOne(entityField);
+            var inferredComponent = inferComponent(type, list, enumField, manyToOne);
+            var component = presentation.getString("component", inferredComponent);
+            validateComponent(entityName, fieldName, type, component, enumField, manyToOne, list);
+
+            Map<String, Object> field = new LinkedHashMap<>();
+            field.put("name", fieldName);
+            field.put("type", type);
+            field.put("component", component);
+            field.put("enum", enumField);
+            field.put("manyToOne", manyToOne);
+            field.put("list", list);
+            if (enumField) {
+                field.put("enumType", JakartaPersistenceHelper.enumClassName(entityName + "Entity", fieldName));
+                field.put("valuesProperty", fieldName + "Values");
+            }
+            if (manyToOne) {
+                addRelationDefinition(field, presentation, type, entitiesJson);
+            }
+            result.add(field);
+        }
+        return result;
+    }
+
+    private String inferComponent(String type, boolean list, boolean enumField, boolean manyToOne)
+        throws IOException {
+        if (list) {
+            if ("String".equals(type)) {
+                return "chips";
+            }
+            throw new IOException("Only List<String> fields are supported by CRUD form generation");
+        }
+        if (enumField || manyToOne) {
+            return "selectOneMenu";
+        }
+        if (NUMERIC_TYPES.contains(type)) {
+            return "inputNumber";
+        }
+        return switch (type) {
+            case "LocalDate", "LocalDateTime" -> "datePicker";
+            default -> "inputText";
+        };
+    }
+
+    private void validateComponent(String entityName,
+                                   String fieldName,
+                                   String type,
+                                   String component,
+                                   boolean enumField,
+                                   boolean manyToOne,
+                                   boolean list) throws IOException {
+        if (!SUPPORTED_COMPONENTS.contains(component) && !"chips".equals(component)) {
+            throw new IOException("Unsupported component '%s' for %s.%s"
+                .formatted(component, entityName, fieldName));
+        }
+        if ((enumField || manyToOne) && !"selectOneMenu".equals(component)) {
+            throw new IOException("Enum and many-to-one fields require selectOneMenu: "
+                + entityName + "." + fieldName);
+        }
+        if ("selectOneMenu".equals(component) && !enumField && !manyToOne) {
+            throw new IOException("selectOneMenu requires an enum or many-to-one field: "
+                + entityName + "." + fieldName);
+        }
+        if (list && !"chips".equals(component)) {
+            throw new IOException("List field requires chips component: " + entityName + "." + fieldName);
+        }
+        if ("textarea".equals(component) && !"String".equals(type)) {
+            throw new IOException("textarea requires a String field: " + entityName + "." + fieldName);
+        }
+        if ("inputNumber".equals(component) && !NUMERIC_TYPES.contains(type)) {
+            throw new IOException("inputNumber requires a numeric field: " + entityName + "." + fieldName);
+        }
+        if ("datePicker".equals(component)
+            && !Set.of("LocalDate", "LocalDateTime").contains(type)) {
+            throw new IOException("datePicker requires a LocalDate or LocalDateTime field: "
+                + entityName + "." + fieldName);
+        }
+    }
+
+    private boolean isManyToOne(JsonObject entityField) {
+        return entityField.entrySet().stream()
+            .filter(entry -> "manyToOne".equalsIgnoreCase(entry.getKey()))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .map(value -> value == JsonValue.TRUE || value.getValueType() == JsonValue.ValueType.OBJECT)
+            .orElse(false);
+    }
+
+    private void addRelationDefinition(Map<String, Object> field,
+                                       JsonObject presentation,
+                                       String relatedType,
+                                       JsonObject entitiesJson) throws IOException {
+        var relatedEntity = entitiesJson.getJsonObject(relatedType);
+        if (relatedEntity == null) {
+            throw new IOException("Related entity definition not found: " + relatedType);
+        }
+        var relatedFields = relatedEntity.getJsonObject(FIELDS);
+        var displayField = presentation.containsKey("displayField")
+            ? presentation.getString("displayField")
+            : List.of("name", "title", "id").stream()
+                .filter(relatedFields::containsKey)
+                .findFirst()
+                .orElseThrow(() -> new IOException(
+                    "No display field (name, title, or id) found for related entity " + relatedType));
+        if (!relatedFields.containsKey(displayField)) {
+            throw new IOException("Display field %s is not defined by related entity %s"
+                .formatted(displayField, relatedType));
+        }
+        var id = CoffeeBuilderUtil.getFieldId(relatedEntity)
+            .orElseThrow(() -> new IOException("No id field found for related entity " + relatedType));
+        var instanceName = StringUtils.uncapitalize(relatedType);
+        field.put("relatedType", relatedType);
+        field.put("relatedInstance", instanceName);
+        field.put("relatedOptions", instanceName + "s");
+        field.put("converterProperty", instanceName + "Converter");
+        field.put("displayField", displayField);
+        field.put("relatedId", id.getKey());
+    }
+
+    private List<Map<String, Object>> createRelationDefinitions(List<Map<String, Object>> fields) {
+        Map<String, Map<String, Object>> relations = new LinkedHashMap<>();
+        fields.stream()
+            .filter(field -> Boolean.TRUE.equals(field.get("manyToOne")))
+            .forEach(field -> relations.putIfAbsent((String) field.get("relatedType"), field));
+        return List.copyOf(relations.values());
     }
 
     private static class PrimeFacesUtilHolder {
