@@ -225,7 +225,7 @@ public class JakartaPersistenceHelper {
                 .map(jsonValue -> (JsonString) jsonValue)
                 .map(JsonString::getString)
                 .toList();
-        var fullName = createEnum(mavenProject, log, entityName + StringUtils.capitalize(fieldName),
+        var fullName = createEnum(mavenProject, log, enumClassName(entityName, fieldName),
                 enumValues);
         importsList.add(fullName);
         importsList.add("jakarta.persistence.Enumerated");
@@ -235,6 +235,10 @@ public class JakartaPersistenceHelper {
             "description", Map.of("value", "EnumType.STRING")
         ));*/
         return StringUtils.substringAfterLast(fullName, ".");
+    }
+
+    static String enumClassName(String entityName, String fieldName) {
+        return entityName + StringUtils.capitalize(fieldName);
     }
 
     private String createTypeListField(JsonObject field,
