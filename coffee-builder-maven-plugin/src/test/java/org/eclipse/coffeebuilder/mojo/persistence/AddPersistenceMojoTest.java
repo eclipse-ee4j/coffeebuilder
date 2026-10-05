@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -23,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -108,7 +110,10 @@ class AddPersistenceMojoTest {
         mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession, projectBuilder, mavenProject))
                 .thenReturn(fullProject);
 
-        var jdbcConfig = Json.createObjectBuilder().add("dataSourceClass", "org.h2.jdbcx.JdbcDataSource").build();
+        var jdbcConfig = Json.createObjectBuilder()
+                .add("dataSourceClass", "org.h2.jdbcx.JdbcDataSource")
+                .add("defaultUrlParameters", Json.createObjectBuilder().add("MODE", "LEGACY"))
+                .build();
         coffeeBuilderUtilMockedStatic.when(() -> CoffeeBuilderUtil.getJdbcConfiguration(mockLog,"jdbc:h2:mem:test"))
                 .thenReturn(Optional.of(jdbcConfig));
 
@@ -124,7 +129,9 @@ class AddPersistenceMojoTest {
 
         verify(jakartaEeHelperMock).createPersistenceXml(eq(fullProject), eq(mockLog), eq("myPU"));
         verify(persistenceXmlHelperMock).addDataSourceToPersistenceXml(eq(fullProject), eq(mockLog), eq("myPU"), eq("jdbc/myDS"));
-        verify(jakartaEeHelperMock).addDataSource(eq(fullProject), eq(mockLog), eq("web"), any(), any());
+        var properties = ArgumentCaptor.forClass(jakarta.json.JsonObject.class);
+        verify(jakartaEeHelperMock).addDataSource(eq(fullProject), eq(mockLog), eq("web"), properties.capture(), any());
+        assertEquals("jdbc:h2:mem:test;MODE=LEGACY", properties.getValue().getString("url"));
 
         verify(jakartaEeHelperMock).addJakartaCdiDependency(mavenProject, mockLog, "10.0.0");
         verify(jakartaEeHelperMock).addJakartaPersistenceDependency(fullProject, mockLog, "10.0.0");

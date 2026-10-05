@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.coffeebuilder.util.Constants.*;
+import static org.eclipse.coffeebuilder.util.DataSourceUtil.mergeDefaultUrlParameters;
 import static org.eclipse.coffeebuilder.util.DataSourceUtil.validateDataSourceName;
 
 /**
@@ -245,9 +246,15 @@ public abstract class AddAbstractPersistenceMojo extends AbstractMojo {
         var definition = CoffeeBuilderUtil.getJdbcConfiguration(log, url)
             .orElseThrow(() -> new MojoExecutionException(
                 "No JDBC configuration found for URL " + url));
+        var defaultUrlParameters = definition.getJsonObject("defaultUrlParameters");
+        var effectiveUrl = mergeDefaultUrlParameters(url, defaultUrlParameters);
+        var effectiveDataSourceParameters = Json.createObjectBuilder(json)
+            .add("url", effectiveUrl)
+            .build();
         jakartaEeHelper.checkDataDependencies(fullProject, log, definition);
         jakartaEeHelper.addDataSource(fullProject, log, declare,
-            getDataSourceProperties(json, definition.getString("dataSourceClass")), profile);
+            getDataSourceProperties(effectiveDataSourceParameters,
+                definition.getString("dataSourceClass")), profile);
 
 //        CoffeeBuilderUtil.updateProjectConfiguration(mavenProject.getFile().toPath().getParent(), "jdbc", json);
     }

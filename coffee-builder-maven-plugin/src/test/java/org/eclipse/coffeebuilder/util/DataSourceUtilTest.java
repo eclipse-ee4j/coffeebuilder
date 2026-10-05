@@ -1,5 +1,6 @@
 package org.eclipse.coffeebuilder.util;
 
+import jakarta.json.Json;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,57 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DataSourceUtilTest {
+
+    @Nested
+    @DisplayName("mergeDefaultUrlParameters")
+    class MergeDefaultUrlParameters {
+
+        @Test
+        void addsH2LegacyModeAndPreservesExistingParameter() {
+            var defaults = Json.createObjectBuilder().add("MODE", "LEGACY").build();
+
+            assertEquals("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=LEGACY",
+                DataSourceUtil.mergeDefaultUrlParameters(
+                    "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", defaults));
+        }
+
+        @Test
+        void preservesUserSuppliedH2ModeWithoutDuplication() {
+            var defaults = Json.createObjectBuilder().add("MODE", "LEGACY").build();
+
+            assertEquals("jdbc:h2:mem:test;mode=PostgreSQL;DB_CLOSE_DELAY=-1",
+                DataSourceUtil.mergeDefaultUrlParameters(
+                    "jdbc:h2:mem:test;mode=PostgreSQL;DB_CLOSE_DELAY=-1", defaults));
+        }
+
+        @Test
+        void leavesUrlUnchangedWithoutDefaults() {
+            assertEquals("jdbc:hsqldb:mem:test",
+                DataSourceUtil.mergeDefaultUrlParameters(
+                    "jdbc:hsqldb:mem:test", Json.createObjectBuilder().build()));
+        }
+
+        @Test
+        void addsMissingQueryDefaultWithoutBreakingExistingParameter() {
+            var defaults = Json.createObjectBuilder()
+                .add("sslMode", "required")
+                .add("connectTimeout", "30")
+                .build();
+
+            assertEquals("jdbc:example://localhost/test?connectTimeout=10&sslMode=required",
+                DataSourceUtil.mergeDefaultUrlParameters(
+                    "jdbc:example://localhost/test?connectTimeout=10", defaults));
+        }
+
+        @Test
+        void userSuppliedQueryParameterOverridesDefaultCaseInsensitively() {
+            var defaults = Json.createObjectBuilder().add("sslMode", "required").build();
+
+            assertEquals("jdbc:example://localhost/test?SSLMODE=disabled",
+                DataSourceUtil.mergeDefaultUrlParameters(
+                    "jdbc:example://localhost/test?SSLMODE=disabled", defaults));
+        }
+    }
 
     @Nested
     @DisplayName("getPrefix")
