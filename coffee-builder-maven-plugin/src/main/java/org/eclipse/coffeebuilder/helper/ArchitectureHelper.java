@@ -31,6 +31,7 @@ import org.apache.maven.project.MavenProject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -160,12 +161,14 @@ public class ArchitectureHelper {
                     return type;
                 });
             log.debug("fields:" + fields);
-            Map<String, Object> fieldsMap = Map.ofEntries(
+            Map<String, Object> fieldsMap = new LinkedHashMap<>(Map.ofEntries(
                 Map.entry(PACKAGE_NAME, packageDefinition),
                 Map.entry(CLASS_NAME, modelName),
                 Map.entry(IMPORTS_LIST, importsList),
                 Map.entry(FIELDS, fields)
-            );
+            ));
+            CoffeeBuilderUtil.getFieldId(modelDefinition)
+                .ifPresent(idField -> fieldsMap.put("idName", idField.getKey()));
 
             TemplateUtil.getInstance().createPojoFile(log, fieldsMap, modelPath);
 
