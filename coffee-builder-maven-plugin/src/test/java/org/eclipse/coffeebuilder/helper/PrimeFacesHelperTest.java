@@ -77,6 +77,14 @@ class PrimeFacesHelperTest {
                   "milestone": {"label": "Milestone"},
                   "labels": {"label": "Labels"}
                 }
+              },
+              "ProjectList": {
+                "entity": "Project",
+                "title": "Projects",
+                "fields": {
+                  "id": {"label": "Id"},
+                  "name": {"label": "Name"}
+                }
               }
             }
             """);
@@ -109,6 +117,12 @@ class PrimeFacesHelperTest {
         assertTrue(xhtml.contains("itemLabel=\"#{projectOption.name}\""));
         assertTrue(xhtml.contains("itemLabel=\"#{milestoneOption.title}\""));
         assertTrue(xhtml.contains("<p:chips id=\"labels\""));
+
+        var index = Files.readString(tempDirectory.resolve("src/main/webapp/index.xhtml"));
+        assertTrue(index.contains("outcome=\"/IssueList.xhtml\""));
+        assertTrue(index.contains("value=\"Issues\""));
+        assertTrue(index.contains("outcome=\"/ProjectList.xhtml\""));
+        assertTrue(index.contains("value=\"Projects\""));
 
         var bean = Files.readString(javaSource("IssueListBean"));
         assertTrue(bean.contains("private ProjectRepository projectRepository;"));
@@ -152,6 +166,8 @@ class PrimeFacesHelperTest {
         assertTrue(xhtml.contains("id=\"startDate\""));
         assertFalse(xhtml.contains("id=\"internalCode\""));
         assertTrue(Files.exists(javaSource("ProjectListBean")));
+        var index = Files.readString(tempDirectory.resolve("src/main/webapp/index.xhtml"));
+        assertTrue(index.contains("value=\"Project List\""));
     }
 
     private MavenProject createProject() {
