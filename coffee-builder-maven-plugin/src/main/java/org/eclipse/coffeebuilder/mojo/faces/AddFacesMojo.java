@@ -15,6 +15,7 @@
  */
 package org.eclipse.coffeebuilder.mojo.faces;
 
+import org.eclipse.coffeebuilder.helper.FacesNavigationIndex;
 import org.eclipse.coffeebuilder.helper.JakartaEeHelper;
 import org.eclipse.coffeebuilder.util.MavenProjectUtil;
 import org.eclipse.coffeebuilder.util.PomUtil;
@@ -66,7 +67,7 @@ public class AddFacesMojo extends AbstractMojo {
         property = "welcome-file",
         defaultValue = "index.xhtml"
     )
-    private String welcomeFile;
+    private String welcomeFile = "index.xhtml";
 
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject mavenProject;
@@ -102,8 +103,9 @@ public class AddFacesMojo extends AbstractMojo {
             checkDependency(log, jakartaEeVersion, fullProject);
             checkJakartaFacesDeclaration(log, fullProject);
             checkWelcomePages(log, fullProject);
+            FacesNavigationIndex.getInstance().ensureExists(fullProject, log);
             PomUtil.saveMavenProject(mavenProject, log);
-        } catch (ProjectBuildingException e) {
+        } catch (ProjectBuildingException | IOException e) {
             throw new MojoFailureException(e);
         }
     }

@@ -150,6 +150,9 @@ public class PrimeFacesHelper extends JakartaFacesHelper {
         createManagedBean(mavenProject, log, pageName, entityName, fieldIdDefinition, relations, enumFields);
         createForm(log, webAppPath, formName, pageName, formDescription, entityDescription,
             fieldIdDefinition, fields, relations);
+        FacesNavigationIndex.getInstance().registerPage(mavenProject, log, pageName,
+            formDescription.getString("title",
+                FacesNavigationIndex.getInstance().readableLabel(pageName)));
     }
 
     private void saveMessagesBundle(MavenProject mavenProject, Log log, Properties properties) throws IOException {

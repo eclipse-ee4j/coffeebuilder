@@ -124,6 +124,8 @@ public class JakartaFacesHelper {
             });
             xmlUtil.saveDocument(facePage, log, xhtml);
         });
+        FacesNavigationIndex.getInstance().registerPage(mavenProject, log, pageName,
+            FacesNavigationIndex.getInstance().readableLabel(pageName));
     }
 
     /**
@@ -250,6 +252,8 @@ public class JakartaFacesHelper {
             });
             xmlUtil.saveDocument(facePage, log, xhtml);
         });
+        FacesNavigationIndex.getInstance().registerPage(mavenProject, log, pageName,
+            FacesNavigationIndex.getInstance().readableLabel(pageName));
     }
 
     /**

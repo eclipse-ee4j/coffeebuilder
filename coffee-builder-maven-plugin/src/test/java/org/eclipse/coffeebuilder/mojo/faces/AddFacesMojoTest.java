@@ -1,6 +1,7 @@
 package org.eclipse.coffeebuilder.mojo.faces;
 
 import org.eclipse.coffeebuilder.helper.JakartaEeHelper;
+import org.eclipse.coffeebuilder.helper.FacesNavigationIndex;
 import org.eclipse.coffeebuilder.util.MavenProjectUtil;
 import org.eclipse.coffeebuilder.util.PomUtil;
 import org.apache.maven.execution.MavenSession;
@@ -51,9 +52,13 @@ class AddFacesMojoTest {
     private MockedStatic<MavenProjectUtil> mavenProjectUtilMockedStatic;
     private MockedStatic<PomUtil> pomUtilMockedStatic;
     private MockedStatic<JakartaEeHelper> jakartaEeHelperMockedStatic;
+    private MockedStatic<FacesNavigationIndex> facesNavigationIndexMockedStatic;
 
     @Mock
     private JakartaEeHelper jakartaEeHelperMock;
+
+    @Mock
+    private FacesNavigationIndex facesNavigationIndexMock;
 
     @BeforeEach
     void setUp() {
@@ -62,8 +67,11 @@ class AddFacesMojoTest {
         mavenProjectUtilMockedStatic = mockStatic(MavenProjectUtil.class);
         pomUtilMockedStatic = mockStatic(PomUtil.class);
         jakartaEeHelperMockedStatic = mockStatic(JakartaEeHelper.class);
+        facesNavigationIndexMockedStatic = mockStatic(FacesNavigationIndex.class);
 
         jakartaEeHelperMockedStatic.when(JakartaEeHelper::getInstance).thenReturn(jakartaEeHelperMock);
+        facesNavigationIndexMockedStatic.when(FacesNavigationIndex::getInstance)
+            .thenReturn(facesNavigationIndexMock);
     }
 
     @AfterEach
@@ -71,6 +79,7 @@ class AddFacesMojoTest {
         mavenProjectUtilMockedStatic.close();
         pomUtilMockedStatic.close();
         jakartaEeHelperMockedStatic.close();
+        facesNavigationIndexMockedStatic.close();
     }
 
     @Test
@@ -96,7 +105,8 @@ class AddFacesMojoTest {
         verify(jakartaEeHelperMock).addJakartaFacesDependency(mavenProject, mockLog, "10.0.0");
         verify(jakartaEeHelperMock).addJakartaCdiDependency(mavenProject, mockLog, "10.0.0");
         verify(jakartaEeHelperMock).addJakartaFacesDeclaration(fullProject, mockLog);
-        verify(jakartaEeHelperMock).addWelcomePages(eq(fullProject), any(), eq(mockLog));
+        verify(jakartaEeHelperMock).addWelcomePages(fullProject, "index.xhtml", mockLog);
+        verify(facesNavigationIndexMock).ensureExists(fullProject, mockLog);
         pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(mavenProject, mockLog));
     }
 
