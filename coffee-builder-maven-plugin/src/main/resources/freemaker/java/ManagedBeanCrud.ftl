@@ -135,7 +135,9 @@ public class ${className} implements Serializable{
 
     public void delete${modelName}() {
         ${serviceInstanceName}.delete(this.${currentModel});
-        this.${selectedModels}.remove(this.${currentModel});
+        if (this.${selectedModels} != null) {
+            this.${selectedModels}.remove(this.${currentModel});
+        }
         this.${currentModel} = null;
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("${modelName} Removed"));
         PrimeFaces.current().ajax().update("${formId}:messages", "${formId}:dt-${instanceModelName}s");
@@ -147,7 +149,7 @@ public class ${className} implements Serializable{
 
     public void deleteSelected${modelName}s() {
         ${serviceInstanceName}.deleteAll(${selectedModels});
-        this.${selectedModels} = null;
+        this.${selectedModels} = new ArrayList<>();
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("${modelName}s Removed"));
         PrimeFaces.current().ajax().update("${formId}:messages", "${formId}:dt-${instanceModelName}s");
         PrimeFaces.current().executeScript("PF('dt${modelName}s').clearFilters()");
