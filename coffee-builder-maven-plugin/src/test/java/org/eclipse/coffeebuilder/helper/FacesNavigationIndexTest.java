@@ -55,7 +55,8 @@ class FacesNavigationIndexTest {
             document.getRootElement().getNamespaceForPrefix("h").getURI());
         assertTrue(contents.contains("<title>Application pages</title>"));
         assertFalse(contents.contains("<h:title>"));
-        assertTrue(contents.contains("id=\"coffee-builder-navigation\""));
+        assertTrue(contents.contains("<ul id=\"coffee-builder-navigation\""));
+        assertFalse(contents.contains("<h:panelGroup"));
     }
 
     @Test
@@ -69,10 +70,15 @@ class FacesNavigationIndexTest {
         navigation.registerPage(project, log, "PageA", "Ignored duplicate");
 
         var contents = Files.readString(indexPath(project));
+        var document = DocumentHelper.parseText(contents);
         assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageA.xhtml\""));
         assertTrue(contents.contains("value=\"Page A\""));
         assertTrue(contents.contains("outcome=\"/admin/PageB.xhtml\""));
         assertTrue(contents.contains("value=\"Second page\""));
+        assertEquals(2, document.selectNodes(
+            "//*[local-name()='ul' and @id='coffee-builder-navigation']/*[local-name()='li']").size());
+        assertEquals(2, document.selectNodes(
+            "//*[local-name()='ul']/*[local-name()='li']/*[local-name()='link']").size());
     }
 
     @Test
@@ -84,11 +90,76 @@ class FacesNavigationIndexTest {
         Files.writeString(index, userContents);
         var log = mock(Log.class);
 
-        FacesNavigationIndex.getInstance().ensureExists(project, log);
         FacesNavigationIndex.getInstance().registerPage(project, log, "PageA", "Page A");
 
         assertEquals(userContents, Files.readString(index));
         verify(log).warn(contains("not managed by Coffee Builder"));
+    }
+
+    @Test
+    void replacesUnmanagedIndexOnlyWhenOverwriteIsEnabled() throws Exception {
+        var project = createProject(tempDirectory.resolve("overwrite-user-index"));
+        var index = indexPath(project);
+        Files.createDirectories(index.getParent());
+        Files.writeString(index, "<html><body>User home</body></html>");
+
+        FacesNavigationIndex.getInstance().ensureExists(project, mock(Log.class), true);
+
+        var contents = Files.readString(index);
+        assertTrue(contents.contains(FacesNavigationIndex.MANAGED_MARKER));
+        assertTrue(contents.contains("<ul id=\"coffee-builder-navigation\""));
+        assertFalse(contents.contains("User home"));
+    }
+
+    @Test
+    void upgradesPreviouslyGeneratedInlineNavigationWhenRegisteringAnotherPage() throws Exception {
+        var project = createProject(tempDirectory.resolve("managed-inline"));
+        var index = indexPath(project);
+        Files.createDirectories(index.getParent());
+        Files.writeString(index, """
+            <!--Eclipse Coffee Builder managed navigation index-->
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+              <h:body>
+                <h:panelGroup id="coffee-builder-navigation" layout="block">
+                  <h:link outcome="/PageA.xhtml" value="Page A"/>
+                </h:panelGroup>
+              </h:body>
+            </html>
+            """);
+
+        FacesNavigationIndex.getInstance().registerPage(project, mock(Log.class),
+            "PageB", "Page B");
+
+        var contents = Files.readString(index);
+        assertFalse(contents.contains("panelGroup"));
+        assertEquals(2, StringUtils.countMatches(contents, "<li>"));
+        assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageA.xhtml\""));
+        assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageB.xhtml\""));
+    }
+
+    @Test
+    void persistsInlineNavigationUpgradeWhenPageIsAlreadyRegistered() throws Exception {
+        var project = createProject(tempDirectory.resolve("managed-inline-duplicate"));
+        var index = indexPath(project);
+        Files.createDirectories(index.getParent());
+        Files.writeString(index, """
+            <!--Eclipse Coffee Builder managed navigation index-->
+            <html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html">
+              <h:body>
+                <h:panelGroup id="coffee-builder-navigation" layout="block">
+                  <h:link outcome="/PageA.xhtml" value="Page A"/>
+                </h:panelGroup>
+              </h:body>
+            </html>
+            """);
+
+        FacesNavigationIndex.getInstance().registerPage(project, mock(Log.class),
+            "PageA", "Page A");
+
+        var contents = Files.readString(index);
+        assertFalse(contents.contains("panelGroup"));
+        assertEquals(1, StringUtils.countMatches(contents, "<li>"));
+        assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageA.xhtml\""));
     }
 
     @Test
@@ -106,6 +177,7 @@ class FacesNavigationIndexTest {
         var contents = Files.readString(indexPath(project));
         assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageA.xhtml\""));
         assertEquals(1, StringUtils.countMatches(contents, "outcome=\"/PageB.xhtml\""));
+        assertEquals(2, StringUtils.countMatches(contents, "<li>"));
     }
 
     private MavenProject createProject(Path directory) throws Exception {

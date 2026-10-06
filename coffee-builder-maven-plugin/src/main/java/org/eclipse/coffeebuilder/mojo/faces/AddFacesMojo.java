@@ -46,6 +46,8 @@ import java.io.IOException;
  * Goal: add-faces
  * Configuration Parameters:<ul>
  * <li> <code>welcome-file</code>: Specifies the welcome file name (default: "index.xhtml").</li>
+ * <li> <code>overwrite</code>: Replaces a user-managed index.xhtml with the generated navigation index
+ * only when explicitly enabled (default: false).</li>
  * <li> <code>mavenProject</code>: Represents the Maven project being processed.</li>
  * <li> <code>mavenSession</code>: Provides the Maven execution session information.</li>
  * <li> <code>projectBuilder</code>: Helper to build Maven project instances.</li>
@@ -68,6 +70,12 @@ public class AddFacesMojo extends AbstractMojo {
         defaultValue = "index.xhtml"
     )
     private String welcomeFile = "index.xhtml";
+
+    @Parameter(
+        property = "overwrite",
+        defaultValue = "false"
+    )
+    private boolean overwrite;
 
     @Parameter(defaultValue = "${project}", readonly = true)
     private MavenProject mavenProject;
@@ -103,7 +111,7 @@ public class AddFacesMojo extends AbstractMojo {
             checkDependency(log, jakartaEeVersion, fullProject);
             checkJakartaFacesDeclaration(log, fullProject);
             checkWelcomePages(log, fullProject);
-            FacesNavigationIndex.getInstance().ensureExists(fullProject, log);
+            FacesNavigationIndex.getInstance().ensureExists(fullProject, log, overwrite);
             PomUtil.saveMavenProject(mavenProject, log);
         } catch (ProjectBuildingException | IOException e) {
             throw new MojoFailureException(e);

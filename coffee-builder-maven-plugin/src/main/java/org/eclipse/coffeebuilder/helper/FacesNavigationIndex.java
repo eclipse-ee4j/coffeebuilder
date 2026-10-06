@@ -30,7 +30,9 @@ import org.dom4j.QName;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.eclipse.coffeebuilder.util.Constants.FACES_NS_HTML;
 
@@ -51,11 +53,32 @@ public final class FacesNavigationIndex {
 
     /** Creates the managed index when no index exists and preserves any existing file. */
     public void ensureExists(MavenProject project, Log log) throws IOException {
+        ensureExists(project, log, false);
+    }
+
+    /**
+     * Creates the managed index when needed. A user-owned index is replaced only when
+     * {@code overwrite} is explicitly enabled.
+     */
+    public void ensureExists(MavenProject project, Log log, boolean overwrite) throws IOException {
         Path index = indexPath(project);
         if (Files.exists(index)) {
-            return;
+            String contents = Files.readString(index);
+            if (contents.contains(MANAGED_MARKER)) {
+                return;
+            }
+            if (!overwrite) {
+                log.warn("Existing Faces navigation index %s is not managed by Coffee Builder; "
+                    .formatted(index)
+                    + "it was preserved and automatic navigation updates will be skipped");
+                return;
+            }
         }
 
+        createManagedIndex(log, index);
+    }
+
+    private void createManagedIndex(Log log, Path index) throws IOException {
         Document document = DocumentHelper.createDocument();
         document.addComment(MANAGED_MARKER);
         Element html = document.addElement("html", "http://www.w3.org/1999/xhtml");
@@ -65,9 +88,8 @@ public final class FacesNavigationIndex {
         Element body = html.addElement(QName.get("body", FACES_HTML));
         body.addElement(QName.get("outputText", FACES_HTML))
             .addAttribute("value", "Application pages");
-        body.addElement(QName.get("panelGroup", FACES_HTML))
-            .addAttribute("id", NAVIGATION_ID)
-            .addAttribute("layout", "block");
+        body.addElement(QName.get("ul", html.getNamespace()))
+            .addAttribute("id", NAVIGATION_ID);
         XmlUtil.getInstance().saveDocument(document, log, index);
         if (!Files.exists(index)) {
             throw new IOException("Unable to create Faces navigation index " + index);
@@ -81,8 +103,6 @@ public final class FacesNavigationIndex {
         Path index = indexPath(project);
         String contents = Files.readString(index);
         if (!contents.contains(MANAGED_MARKER)) {
-            log.warn("Navigation link for %s was not added because %s is not managed by Coffee Builder"
-                .formatted(pageName, index));
             return;
         }
 
@@ -92,24 +112,50 @@ public final class FacesNavigationIndex {
         }
         Document document = XmlUtil.getInstance().getDocument(log, index).orElseThrow(
             () -> new IOException("Unable to read managed Faces navigation index " + index));
-        Element navigation = XmlUtil.getInstance().findElements(document,
-                "//*[local-name()='panelGroup' and @id='" + NAVIGATION_ID + "']")
-            .findFirst()
-            .orElse(null);
+        var navigationElement = XmlUtil.getInstance().findElements(document,
+                "//*[local-name()='ul' and @id='" + NAVIGATION_ID + "']")
+            .findFirst();
+        boolean upgraded = navigationElement.isEmpty();
+        Element navigation = navigationElement.orElseGet(() -> upgradeInlineNavigation(document));
         if (navigation == null) {
             throw new IOException("Managed Faces navigation container not found in " + index);
         }
-        boolean alreadyRegistered = navigation.elements().stream()
+        boolean alreadyRegistered = XmlUtil.getInstance()
+            .findElements(navigation, ".//*[local-name()='link']", Map.of())
             .anyMatch(element -> "link".equals(element.getName())
                 && outcome.equals(element.attributeValue("outcome")));
         if (alreadyRegistered) {
+            if (upgraded) {
+                XmlUtil.getInstance().saveDocument(document, log, index);
+            }
             return;
         }
 
-        navigation.addElement(QName.get("link", FACES_HTML))
+        navigation.addElement(QName.get("li", navigation.getNamespace()))
+            .addElement(QName.get("link", FACES_HTML))
             .addAttribute("outcome", outcome)
             .addAttribute("value", StringUtils.defaultIfBlank(label, readableLabel(pageName)));
         XmlUtil.getInstance().saveDocument(document, log, index);
+    }
+
+    private Element upgradeInlineNavigation(Document document) {
+        Element inlineNavigation = XmlUtil.getInstance().findElements(document,
+                "//*[local-name()='panelGroup' and @id='" + NAVIGATION_ID + "']")
+            .findFirst()
+            .orElse(null);
+        if (inlineNavigation == null) {
+            return null;
+        }
+
+        Element navigation = inlineNavigation.getParent().addElement(
+                QName.get("ul", document.getRootElement().getNamespace()))
+            .addAttribute("id", NAVIGATION_ID);
+        for (Element link : List.copyOf(inlineNavigation.elements())) {
+            link.detach();
+            navigation.addElement(QName.get("li", navigation.getNamespace())).add(link);
+        }
+        inlineNavigation.detach();
+        return navigation;
     }
 
     /** Derives a readable link label from a page name. */

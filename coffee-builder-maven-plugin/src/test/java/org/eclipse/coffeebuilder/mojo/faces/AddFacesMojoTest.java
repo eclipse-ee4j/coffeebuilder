@@ -106,8 +106,30 @@ class AddFacesMojoTest {
         verify(jakartaEeHelperMock).addJakartaCdiDependency(mavenProject, mockLog, "10.0.0");
         verify(jakartaEeHelperMock).addJakartaFacesDeclaration(fullProject, mockLog);
         verify(jakartaEeHelperMock).addWelcomePages(fullProject, "index.xhtml", mockLog);
-        verify(facesNavigationIndexMock).ensureExists(fullProject, mockLog);
+        verify(facesNavigationIndexMock).ensureExists(fullProject, mockLog, false);
         pomUtilMockedStatic.verify(() -> PomUtil.saveMavenProject(mavenProject, mockLog));
+    }
+
+    @Test
+    @DisplayName("execute: should pass an explicit overwrite opt-in to the navigation index")
+    void execute_OverwriteEnabled_ReplacesUserIndex() throws Exception {
+        MavenProject fullProject = mock(MavenProject.class);
+        var overwriteField = AddFacesMojo.class.getDeclaredField("overwrite");
+        overwriteField.setAccessible(true);
+        overwriteField.set(mojo, true);
+
+        mavenProjectUtilMockedStatic.when(() -> MavenProjectUtil.getFullProject(mavenSession,
+                projectBuilder,
+                mavenProject))
+            .thenReturn(fullProject);
+        pomUtilMockedStatic.when(() -> PomUtil.getJakartaEeCurrentVersion(fullProject, mockLog))
+            .thenReturn(Optional.of("10.0.0"));
+        lenient().when(jakartaEeHelperMock.hasJakartaFacesDependency(fullProject, mockLog)).thenReturn(true);
+        lenient().when(jakartaEeHelperMock.hasNotJakartaCdiDependency(fullProject, mockLog)).thenReturn(false);
+
+        mojo.execute();
+
+        verify(facesNavigationIndexMock).ensureExists(fullProject, mockLog, true);
     }
 
     @Test

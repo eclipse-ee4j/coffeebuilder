@@ -24,6 +24,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -123,6 +124,7 @@ class PrimeFacesHelperTest {
         assertTrue(index.contains("value=\"Issues\""));
         assertTrue(index.contains("outcome=\"/ProjectList.xhtml\""));
         assertTrue(index.contains("value=\"Projects\""));
+        assertEquals(2, org.apache.commons.lang3.StringUtils.countMatches(index, "<li>"));
 
         var bean = Files.readString(javaSource("IssueListBean"));
         assertTrue(bean.contains("private ProjectRepository projectRepository;"));
